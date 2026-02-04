@@ -28,6 +28,7 @@ export default function Team() {
     RentManager[] | null
   >(null);
   const [dataDisplay, setDataDisplay] = useState<DataDisplay>("um-network");
+  const [totalRemittance, setTotalRemittance] = useState<number>(0);
 
   const toggleDataOutput = () =>
     setDataDisplay((prev) =>
@@ -36,6 +37,8 @@ export default function Team() {
 
   useEffect(() => {
     if (team_id) {
+      setTeam(null);
+
       const teamId = parseInt(team_id);
       const searchedTeam = teams?.find((t) => t.id === teamId);
       const _rentManagers = rentManagers?.filter(
@@ -46,6 +49,10 @@ export default function Team() {
         setTeam(searchedTeam);
 
         if (_rentManagers) {
+          const total = _rentManagers.reduce(
+            (total, rm) => total + rm?.totalRemittance ?? 0,
+            0
+          );
           const directs = _rentManagers.filter(
             (r) => r.subTeamName === "Direct"
           );
@@ -57,10 +64,13 @@ export default function Team() {
               r.subTeamName !== "Direct" && r.email !== r.subTeam.leaderEmail
           );
           const subTeamStatistics = createSubTeamStatistics(umNetwork);
+          const sortedRmDirects = [...directs, ...ums].sort(
+            (a, b) => (b.totalRemittance ?? 0) - (a.totalRemittance ?? 0)
+          );
 
           setUnitManagersWithSales(ums);
           setDirectRentManagers(directs);
-          setAllDirectRentManagers([...directs, ...ums]);
+          setAllDirectRentManagers(sortedRmDirects);
           setUnitManagers(subTeamStatistics);
         }
       }
@@ -68,110 +78,118 @@ export default function Team() {
   }, [teams]);
 
   return (
-    <>
-      <Container maxWidth="lg">
-        <Box sx={{ mb: 10 }}>
-          <Box sx={{ mt: 2 }}>
-            <Chip
-              label={
-                teams && team
-                  ? `Team Reports (${team?.name} - ${team?.leader})`
-                  : "Team Reports (Fetching team data...)"
-              }
-              size="small"
-              color="warning"
-              sx={{
-                mb: 2,
-                backgroundColor: "rgba(181, 214, 249, 0.58)",
-                color: "primary.main",
-                border: "1px solid rgb(56, 116, 193)",
-              }}
-            />
-            <Grid container spacing={2}>
-              <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-                {teams && team ? (
-                  <>
-                    <RentManagersTeamHeaderCard team={team} />
-                  </>
-                ) : (
-                  <>
-                    <PropertyCardSkeleton />
-                  </>
-                )}
-              </Grid>
-              <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-                {teams && team ? (
-                  <>
-                    <RentManagersTeamSubHeaderCard
-                      title="Team Directs"
-                      leftValue={directRentManagers?.length ?? "0"}
-                      leftSubTitle="Rent Managers"
-                      rightValue={unitManagersWithSales?.length ?? "0"}
-                      rightsubTitle="Unit Managers"
-                      Icon={AccountTreeOutlinedIcon}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <PropertyCardSkeleton />
-                  </>
-                )}
-              </Grid>
-            </Grid>
-          </Box>
-          <Box sx={{ mt: 2, mx: 3 }}>
-            <Box sx={{ mb: 2 }}>
-              <Button
-                disableElevation
-                size="small"
-                variant={
-                  dataDisplay === "um-network" ? "contained" : "outlined"
-                }
-                sx={{ textTransform: "none", borderRadius: 0 }}
-                onClick={toggleDataOutput}
-              >
-                UM Network
-              </Button>
-              <Button
-                disableElevation
-                size="small"
-                variant={dataDisplay === "directs" ? "contained" : "outlined"}
-                sx={{ textTransform: "none", borderRadius: 0 }}
-                onClick={toggleDataOutput}
-              >
-                Directs
-              </Button>
-            </Box>
-            <Box sx={{ overflow: "auto", height: "55vh" }}>
-              {dataDisplay === "um-network" ? (
+    <Container maxWidth="lg">
+      <Box sx={{ mb: 10 }}>
+        <Box sx={{ mt: 2 }}>
+          <Chip
+            label={
+              team
+                ? `Team Reports (${team?.name} - ${team?.leader})`
+                : "Team Reports (Fetching team data...)"
+            }
+            size="small"
+            color="warning"
+            sx={{
+              mb: 2,
+              backgroundColor: "rgba(181, 214, 249, 0.58)",
+              color: "primary.main",
+              border: "1px solid rgb(56, 116, 193)",
+            }}
+          />
+          <Grid container spacing={2}>
+            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+              {team ? (
                 <>
-                  {unitManagers && (
-                    <Grid container spacing={2}>
-                      {unitManagers?.map((r) => (
-                        <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r.id}>
-                          <UnitManagerTeamCard {...r} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
+                  <RentManagersTeamHeaderCard team={team} />
                 </>
               ) : (
                 <>
-                  {allDirectRentManagers && (
-                    <Grid container spacing={2}>
-                      {allDirectRentManagers?.map((r) => (
-                        <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r.id}>
-                          <RentManagerSalesCard rm={r} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
+                  <PropertyCardSkeleton />
                 </>
               )}
-            </Box>
+            </Grid>
+            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+              {team ? (
+                <>
+                  <RentManagersTeamSubHeaderCard
+                    title="Team Directs"
+                    leftValue={directRentManagers?.length ?? "0"}
+                    leftSubTitle="Rent Managers"
+                    rightValue={unitManagersWithSales?.length ?? "0"}
+                    rightsubTitle="Unit Managers"
+                    Icon={AccountTreeOutlinedIcon}
+                  />
+                </>
+              ) : (
+                <>
+                  <PropertyCardSkeleton />
+                </>
+              )}
+            </Grid>
+          </Grid>
+        </Box>
+        <Box sx={{ mt: 2, mx: 3 }}>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              disableElevation
+              size="small"
+              variant={dataDisplay === "um-network" ? "contained" : "outlined"}
+              sx={{ textTransform: "none", borderRadius: 0 }}
+              onClick={toggleDataOutput}
+            >
+              UM Network
+            </Button>
+            <Button
+              disableElevation
+              size="small"
+              variant={dataDisplay === "directs" ? "contained" : "outlined"}
+              sx={{ textTransform: "none", borderRadius: 0 }}
+              onClick={toggleDataOutput}
+            >
+              Directs
+            </Button>
+          </Box>
+          <Box sx={{ overflow: "auto", height: "55vh" }}>
+            {team ? (
+              <>
+                {dataDisplay === "um-network" ? (
+                  <>
+                    {unitManagers && (
+                      <Grid container spacing={2}>
+                        {unitManagers?.map((r) => (
+                          <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r.id}>
+                            <UnitManagerTeamCard {...r} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {allDirectRentManagers && (
+                      <Grid container spacing={2}>
+                        {allDirectRentManagers?.map((r) => (
+                          <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r.id}>
+                            <RentManagerSalesCard rm={r} qualified={false} />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <Grid container spacing={2}>
+                {[1, 2, 3, 4, 5, 6].map((r) => (
+                  <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r}>
+                    <PropertyCardSkeleton height="auto" />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
           </Box>
         </Box>
-      </Container>
-    </>
+      </Box>
+    </Container>
   );
 }

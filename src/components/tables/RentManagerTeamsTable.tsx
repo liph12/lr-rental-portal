@@ -4,10 +4,11 @@ import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import type { Team } from "../../types";
 import { useAppContext } from "../../providers/AppProvider";
 import { ChevronRight } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function RentManagerTeamsTable() {
   const { teams } = useAppContext();
+  const location = useLocation();
 
   const columns: GridColDef[] = [
     {
@@ -76,7 +77,7 @@ export default function RentManagerTeamsTable() {
               alignItems: "center",
             }}
           >
-            <Link to={`/reports/${params.row.id}`}>
+            <Link to={`/reports/${params.row.id}${location?.search ?? ""}`}>
               <Button
                 disableElevation
                 variant="outlined"

@@ -1,8 +1,14 @@
 import { Box, Divider, Skeleton } from "@mui/material";
 
-export default function PropertyCardSkeleton() {
+interface PropertyCardSkeletonProps {
+  height?: string;
+}
+
+export default function PropertyCardSkeleton({
+  height = "16vh",
+}: PropertyCardSkeletonProps) {
   return (
-    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "16vh" }}>
+    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: height }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <>
           <Skeleton sx={{ height: 50, width: 150 }} />

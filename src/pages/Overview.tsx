@@ -29,78 +29,76 @@ export default function Overview() {
   const { areaStatistics, propertyUnits } = useAppContext();
 
   return (
-    <>
-      <Container maxWidth="lg">
-        <Box sx={{ mb: 10 }}>
-          <Box sx={{ mt: 2 }}>
-            <Chip
-              label="Condominium Units Overview (Ave. Rate)"
-              size="small"
-              color="warning"
-              sx={{
-                mb: 2,
-                backgroundColor: "rgba(240, 194, 138, 0.44)",
-                color: "warning.main",
-                border: "1px solid rgb(230, 136, 21)",
-              }}
-            />
-            <Grid container spacing={2}>
-              {propertyUnits ? (
-                Object.entries(propertyUnits).map(([k, v]) => (
-                  <Grid size={{ lg: 4, md: 6, xs: 12 }} key={k}>
-                    <PropertyCard
-                      Icon={getPropertyUnitIcon(k)}
-                      label={k}
-                      rate={v.rate}
-                      units={v.units}
-                    />
+    <Container maxWidth="lg">
+      <Box sx={{ mb: 10 }}>
+        <Box sx={{ mt: 2 }}>
+          <Chip
+            label="Condominium Units Overview (Ave. Rate)"
+            size="small"
+            color="warning"
+            sx={{
+              mb: 2,
+              backgroundColor: "rgba(240, 194, 138, 0.44)",
+              color: "warning.main",
+              border: "1px solid rgb(230, 136, 21)",
+            }}
+          />
+          <Grid container spacing={2}>
+            {propertyUnits ? (
+              Object.entries(propertyUnits).map(([k, v]) => (
+                <Grid size={{ lg: 4, md: 6, xs: 12 }} key={k}>
+                  <PropertyCard
+                    Icon={getPropertyUnitIcon(k)}
+                    label={k}
+                    rate={v.rate}
+                    units={v.units}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <>
+                {[1, 2, 3, 4, 5, 6, 7].map((r) => (
+                  <Grid size={{ lg: 4, md: 6, xs: 12 }} key={r}>
+                    <PropertyCardSkeleton />
                   </Grid>
-                ))
-              ) : (
-                <>
-                  {[1, 2, 3, 4, 5, 6, 7].map((r) => (
-                    <Grid size={{ lg: 4, md: 6, xs: 12 }} key={r}>
-                      <PropertyCardSkeleton />
-                    </Grid>
-                  ))}
-                </>
-              )}
-            </Grid>
-          </Box>
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-                <Chip
-                  label="Properties Overview (TCP)"
-                  size="small"
-                  color="warning"
-                  sx={{
-                    mb: 2,
-                    backgroundColor: "rgba(240, 194, 138, 0.44)",
-                    color: "warning.main",
-                    border: "1px solid rgb(230, 136, 21)",
-                  }}
-                />
-                <PropertyBarChart />
-              </Grid>
-              <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-                <Chip
-                  label="Area Overview (Total Remittance)"
-                  size="small"
-                  color="warning"
-                  sx={{
-                    mb: 2,
-                    backgroundColor: "rgba(240, 194, 138, 0.44)",
-                    color: "warning.main",
-                    border: "1px solid rgb(230, 136, 21)",
-                  }}
-                />
-                <AreaBarChart areaStatistics={areaStatistics} />
-              </Grid>
-            </Grid>
-          </Box>
+                ))}
+              </>
+            )}
+          </Grid>
         </Box>
-      </Container>
-    </>
+        <Box sx={{ mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+              <Chip
+                label="Properties Overview (TCP)"
+                size="small"
+                color="warning"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "rgba(240, 194, 138, 0.44)",
+                  color: "warning.main",
+                  border: "1px solid rgb(230, 136, 21)",
+                }}
+              />
+              <PropertyBarChart />
+            </Grid>
+            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+              <Chip
+                label="Area Overview (Total Remittance)"
+                size="small"
+                color="warning"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "rgba(240, 194, 138, 0.44)",
+                  color: "warning.main",
+                  border: "1px solid rgb(230, 136, 21)",
+                }}
+              />
+              <AreaBarChart areaStatistics={areaStatistics} />
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+    </Container>
   );
 }

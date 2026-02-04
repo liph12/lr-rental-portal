@@ -19,7 +19,8 @@ export default function UnitManagerTeamCard(team: Team) {
         (r) =>
           r.subTeamName !== "Direct" &&
           r.email !== team.leaderEmail &&
-          r.subTeam.id === team.id
+          r.subTeam.id === team.id &&
+          r.hasRemittanceLevel
       );
 
       setUmNetwork(umNetwork);
@@ -88,7 +89,10 @@ export default function UnitManagerTeamCard(team: Team) {
         <Box sx={{ mt: 2, pl: 2, borderLeft: "2px solid rgb(56, 116, 193)" }}>
           {umNetwork?.map((rm) => (
             <Box sx={{ mb: 2 }} key={rm.id}>
-              <RentManagerSalesCard rm={rm} />
+              <RentManagerSalesCard
+                rm={rm}
+                qualified={team.hasRemittanceLevelCount >= MAX_QUALIFIED_LEVELS}
+              />
             </Box>
           ))}
         </Box>

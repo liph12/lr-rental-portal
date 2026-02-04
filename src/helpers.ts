@@ -122,3 +122,12 @@ export const createSubTeamStatistics = (
 
   return formattedStat;
 };
+
+export const formatDatePH = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-PH", {
+    month: "long",
+    day: "2-digit",
+    year: "numeric",
+  });
+};

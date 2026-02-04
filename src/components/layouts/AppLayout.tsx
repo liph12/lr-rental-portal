@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import AppNavbar from "../AppNavBar";
 import AppSideBar from "../AppSideBar";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  const year = new Date().getFullYear();
   return (
     <>
       <AppNavbar />
@@ -18,6 +19,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           }}
         >
           {children}
+          {/* <Box sx={{ height: "15vh" }}>
+            <Typography
+              variant="body2"
+              textAlign="center"
+              color="textSecondary"
+            >
+              All Rights Reserved &copy; {year} | LR & RentPH
+            </Typography>
+          </Box> */}
         </Box>
       </Box>
     </>

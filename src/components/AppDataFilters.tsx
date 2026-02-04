@@ -9,7 +9,12 @@ import {
 import StyledAutocomplete from "../utils/StyledAutocomplete";
 import StyledTextField from "../utils/StyledTextfield";
 import { isActiveRoute } from "../helpers";
-import { Link, useLocation } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { LOCATIONS } from "../app-data";
 import { appRoutes } from "../app-data";
@@ -38,18 +43,24 @@ export default function AppDataFilter() {
     setPropertyUnits,
   } = useAppContext();
   const loc = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const allParams = Object.fromEntries(searchParams.entries());
   const currentPath = loc.pathname;
-  const [location, setLocation] = useState<AutocompleteType | null>({
-    id: "nationwide",
-    label: "Nationwide",
-  });
   const locationsAutocomplete = LOCATIONS.map((loc) => ({
     id: loc.id,
     label: loc.name,
   }));
+  const currentArea = locationsAutocomplete.find(
+    (l) => l.id === allParams?.area
+  );
+  const [location, setLocation] = useState<AutocompleteType | null>({
+    id: currentArea?.id ?? "nationwide",
+    label: currentArea?.label ?? "Nationwide",
+  });
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: "",
-    to: "",
+    from: allParams?.from ?? "",
+    to: allParams?.to ?? "",
   });
   const [enabledFilters, setEnabledFilters] = useState<boolean>(false);
   const [validDateRange, setValidDateRange] = useState<boolean>(true);
@@ -111,8 +122,10 @@ export default function AppDataFilter() {
   };
 
   const fetchDataAsync = async () => {
+    const hasSearchParams = loc?.search !== undefined;
+    const withDateRange = enabledFilters || hasSearchParams;
     const { from, to } = dateRange;
-    const query = enabledFilters
+    let query = enabledFilters
       ? `?from=${from}&to=${to}&area=${location?.id}`
       : "";
 
@@ -123,9 +136,12 @@ export default function AppDataFilter() {
       setRentManagers(null);
       createTeamStatistics(null);
       setLoading(true);
+      navigate(`${loc.pathname}${query}`);
+    } else {
+      query = hasSearchParams ? loc?.search : "";
     }
 
-    const fetchRentManagers = async () => {
+    const fetchRentManagers = async (query: string) => {
       const response = await axios.get(
         `https://leuteriorealty.com/api/rental/rent-managers-sales${query}`
       );
@@ -144,8 +160,12 @@ export default function AppDataFilter() {
           areaName: LOCATIONS.find((l) => l.id === r.area)?.name ?? "",
           totalRemittance: totalRemittance,
           totalRemittanceStr: totalRemittance.toLocaleString(),
-          hasRemittanceLevel: enabledFilters
-            ? hasRemittanceLevel(r.rentalSales, dateRange.from, dateRange.to)
+          hasRemittanceLevel: withDateRange
+            ? hasRemittanceLevel(
+                r.rentalSales,
+                allParams?.from ?? dateRange.from,
+                allParams?.to ?? dateRange.to
+              )
             : hasRemittanceLevel(r.rentalSales),
         };
       });
@@ -172,7 +192,7 @@ export default function AppDataFilter() {
       createTeamStatistics(rentManagersWithRemittances);
     };
 
-    const fetchPropertyCondoUnits = async () => {
+    const fetchPropertyCondoUnits = async (query: string) => {
       const response = await axios.get(
         `https://leuteriorealty.com/api/rental/property-condo-overview${query}`
       );
@@ -181,7 +201,7 @@ export default function AppDataFilter() {
       setPropertyUnits(data);
     };
 
-    const fetchProperties = async () => {
+    const fetchProperties = async (query: string) => {
       const response = await axios.get(
         `https://leuteriorealty.com/api/rental/property-overview${query}`
       );
@@ -190,9 +210,9 @@ export default function AppDataFilter() {
       setProperties(data);
     };
 
-    await fetchPropertyCondoUnits();
-    await fetchProperties();
-    await fetchRentManagers();
+    await fetchPropertyCondoUnits(query);
+    await fetchProperties(query);
+    await fetchRentManagers(query);
     setLoading(false);
   };
 
@@ -283,6 +303,7 @@ export default function AppDataFilter() {
         {appRoutes.map((r) => {
           return (
             <Typography
+              key={r.path}
               sx={{
                 px: 2,
                 py: 1,
@@ -299,7 +320,6 @@ export default function AppDataFilter() {
                 transition: "0.2s",
                 ":hover": {
                   backgroundColor: "#eee",
-                  // color: "#fff",
                 },
                 display: "flex",
                 alignItems: "center",
@@ -307,7 +327,7 @@ export default function AppDataFilter() {
                 textDecoration: "none",
               }}
               component={Link}
-              to={r.path}
+              to={`${r.path}${loc?.search ?? ""}`}
               variant="body2"
             >
               <r.icon fontSize="small" /> {r.name}
