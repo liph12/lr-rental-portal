@@ -1,14 +1,13 @@
-import type { ReactNode } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import AppNavbar from "../AppNavBar";
 import AppSideBar from "../AppSideBar";
+import { Outlet } from "react-router-dom";
 
-export default function AppLayout({ children }: { children: ReactNode }) {
-  const year = new Date().getFullYear();
+export default function AppLayout() {
   return (
     <>
       <AppNavbar />
-      <Box sx={{ display: "flex", gap: 2 }}>
+      <Box sx={{ display: "flex" }}>
         <AppSideBar />
         <Box
           sx={{
@@ -16,18 +15,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             overflow: "auto",
             scrollBehavior: "smooth",
             width: "100%",
+            bgcolor: "#f1f1f1",
           }}
         >
-          {children}
-          {/* <Box sx={{ height: "15vh" }}>
-            <Typography
-              variant="body2"
-              textAlign="center"
-              color="textSecondary"
-            >
-              All Rights Reserved &copy; {year} | LR & RentPH
-            </Typography>
-          </Box> */}
+          <Outlet />
         </Box>
       </Box>
     </>

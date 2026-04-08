@@ -4,7 +4,7 @@ import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 
 export default function RentManagersTeamHeaderCard({ team }: { team: Team }) {
   return (
-    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "16vh" }}>
+    <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: "16vh" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h6" fontWeight={700}>
           {team.name}

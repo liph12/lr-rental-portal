@@ -8,7 +8,7 @@ export default function PropertyCardSkeleton({
   height = "16vh",
 }: PropertyCardSkeletonProps) {
   return (
-    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: height }}>
+    <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: height }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <>
           <Skeleton sx={{ height: 50, width: 150 }} />

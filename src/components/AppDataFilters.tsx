@@ -29,10 +29,19 @@ interface AutocompleteType {
   label: string;
 }
 
-interface DateRange {
-  from: string;
-  to: string;
-}
+// const startYear = 2025;
+// const currentYear = new Date().getFullYear();
+
+// const years = Array.from(
+//   { length: currentYear - startYear + 1 },
+//   (_, index) => {
+//     const year = startYear + index;
+//     return {
+//       id: index,
+//       label: year.toString(),
+//     };
+//   }
+// );
 
 export default function AppDataFilter() {
   const {
@@ -41,6 +50,10 @@ export default function AppDataFilter() {
     setRentManagers,
     setProperties,
     setPropertyUnits,
+    setDateRange,
+    // setDateYear,
+    dateRange,
+    // dateYear,
   } = useAppContext();
   const loc = useLocation();
   const navigate = useNavigate();
@@ -58,10 +71,6 @@ export default function AppDataFilter() {
     id: currentArea?.id ?? "nationwide",
     label: currentArea?.label ?? "Nationwide",
   });
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: allParams?.from ?? "",
-    to: allParams?.to ?? "",
-  });
   const [enabledFilters, setEnabledFilters] = useState<boolean>(false);
   const [validDateRange, setValidDateRange] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
@@ -69,6 +78,8 @@ export default function AppDataFilter() {
   const onChangeDateRange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const k = e.target.name;
     const v = e.target.value;
+
+    // const dateValue = `${dateYear}${v.slice(4)}`;
 
     setDateRange((prev) => ({
       ...prev,
@@ -128,6 +139,9 @@ export default function AppDataFilter() {
     let query = enabledFilters
       ? `?from=${from}&to=${to}&area=${location?.id}`
       : "";
+    // let query = enabledFilters
+    //   ? `?from=${from}&to=${to}&area=${location?.id}&year=${dateYear}`
+    //   : "";
 
     if (enabledFilters) {
       setPropertyUnits(null);
@@ -234,6 +248,13 @@ export default function AppDataFilter() {
     setEnabledFilters(hasFilters);
   }, [location, dateRange]);
 
+  // useEffect(() => {
+  //   const _from = `${dateYear}${dateRange.from.slice(4)}`;
+  //   const _to = `${dateYear}${dateRange.to.slice(4)}`;
+
+  //   setDateRange((prev) => ({ ...prev, from: _from, to: _to }));
+  // }, [dateYear]);
+
   return (
     <>
       <Box pl={1}>
@@ -257,6 +278,27 @@ export default function AppDataFilter() {
               }
             />
           </Box>
+          {/* <Box>
+            <FormHelperText>Date Year</FormHelperText>
+            <StyledAutocomplete
+              options={years}
+              value={years.find((y) => y.label === dateYear.toString())}
+              renderInput={(params) => (
+                <StyledTextField
+                  params={params}
+                  name="location"
+                  value={
+                    years.find((y) => y.label === dateYear.toString())?.label ??
+                    ""
+                  }
+                />
+              )}
+              onChange={(_, v) => setDateYear(parseFloat(v?.label ?? ""))}
+              isOptionEqualToValue={(option, value) =>
+                value === undefined || option.id === value.id
+              }
+            />
+          </Box> */}
           <Box>
             <FormHelperText>Date From</FormHelperText>
             <StyledTextField

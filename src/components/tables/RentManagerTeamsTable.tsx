@@ -97,9 +97,9 @@ export default function RentManagerTeamsTable() {
 
   return (
     <>
-      <Box height="60vh" sx={{ border: "1px solid #ddd", p: 1 }}>
+      <Box height="60vh" sx={{ p: 1 }}>
         <DataGridPro
-          label="Rent Manager Teams"
+          label="Rental Teams"
           showCellVerticalBorder
           showColumnVerticalBorder
           showToolbar

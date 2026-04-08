@@ -18,7 +18,7 @@ export default function RentManagerSalesCard({
 
   return (
     <>
-      <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "auto" }}>
+      <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: "auto" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Box>
             <Typography variant="body1">{`${rm.firstName} ${rm.lastName}`}</Typography>
@@ -52,7 +52,7 @@ export default function RentManagerSalesCard({
               {rm.rentalSales.length}
             </Typography>
             <Typography variant="caption" color="primary">
-              Number of Closed Rentals
+              Closed Rentals
             </Typography>
           </Box>
           <Divider orientation="vertical" sx={{ height: 50 }} />

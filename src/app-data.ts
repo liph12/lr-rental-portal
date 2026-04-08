@@ -1,4 +1,4 @@
-import { Dashboard, BarChartOutlined } from "@mui/icons-material";
+import { Dashboard, BarChartOutlined, Insights } from "@mui/icons-material";
 
 export const LOCATIONS = [
   {
@@ -165,5 +165,10 @@ export const appRoutes = [
     path: "/reports",
     name: "Reports",
     icon: BarChartOutlined,
+  },
+  {
+    path: "/pinning-tracker",
+    name: "Pinning Tracker",
+    icon: Insights,
   },
 ];

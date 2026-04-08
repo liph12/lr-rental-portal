@@ -17,7 +17,7 @@ export const HorizontalChartBar = ({
         display: "flex",
         alignItems: "center",
         gap: 2,
-        width: "100%",
+        width: "80%",
         mb: 2,
         cursor: "pointer",
       }}
@@ -44,10 +44,9 @@ export const HorizontalChartBar = ({
           />
         </Box>
       </Tooltip>
-
-      {/* <Typography sx={{ width: 40, textAlign: "right" }}>
-        {percentage}%
-      </Typography> */}
+      <Typography sx={{ width: 40, textAlign: "right" }}>
+        {value.toLocaleString()}
+      </Typography>
     </Box>
   );
 };

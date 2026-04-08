@@ -3,25 +3,25 @@ import { Typography, Box, Divider, Chip, IconButton } from "@mui/material";
 import { useState, useEffect } from "react";
 import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
 import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
-import { useAppContext } from "../../providers/AppProvider";
 import RentManagerSalesCard from "./RentManagerSalesCard";
 
 const MAX_QUALIFIED_LEVELS = 5;
 
-export default function UnitManagerTeamCard(team: Team) {
-  const { rentManagers } = useAppContext();
+interface UnitManagerTeamCardProps {
+  team: Team;
+  rentManagers: RentManager[] | null;
+}
+
+export default function UnitManagerTeamCard({
+  team,
+  rentManagers,
+}: UnitManagerTeamCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [umNetwork, setUmNetwork] = useState<RentManager[] | null>(null);
 
   useEffect(() => {
     if (rentManagers) {
-      const umNetwork = rentManagers?.filter(
-        (r) =>
-          r.subTeamName !== "Direct" &&
-          r.email !== team.leaderEmail &&
-          r.subTeam.id === team.id &&
-          r.hasRemittanceLevel
-      );
+      const umNetwork = rentManagers?.filter((r) => r.subTeam.id === team.id);
 
       setUmNetwork(umNetwork);
     }
@@ -29,7 +29,7 @@ export default function UnitManagerTeamCard(team: Team) {
 
   return (
     <>
-      <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "16vh" }}>
+      <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: "16vh" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Box>
             <Typography variant="body1">{team.name}</Typography>

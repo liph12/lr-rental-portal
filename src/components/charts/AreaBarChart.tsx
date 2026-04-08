@@ -14,7 +14,7 @@ export default function AreaBarChart({
       sx={{
         height: "30vh",
         overflow: "auto",
-        border: "1px solid #ddd",
+        bgcolor: "#fff",
         p: 2,
       }}
     >

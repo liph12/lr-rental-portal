@@ -70,7 +70,7 @@ export default function RentManagersTable() {
 
   return (
     <>
-      <Box height="60vh" sx={{ border: "1px solid #ddd", p: 1 }}>
+      <Box height="60vh" sx={{ p: 1 }}>
         <DataGridPro
           label="Rent Managers"
           showCellVerticalBorder

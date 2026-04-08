@@ -6,8 +6,10 @@ interface RentManagersTeamSubHeaderCardProps {
   title: string;
   leftValue: string | number;
   leftSubTitle: string;
-  rightValue: string | number;
-  rightsubTitle: string;
+  centerValue?: string | number;
+  centerSubTitle?: string | number;
+  rightValue?: string | number;
+  rightSubTitle?: string;
   Icon: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
 }
 
@@ -15,12 +17,14 @@ export default function RentManagersTeamSubHeaderCard({
   title,
   leftValue,
   leftSubTitle,
+  centerValue,
+  centerSubTitle,
   rightValue,
-  rightsubTitle,
+  rightSubTitle,
   Icon,
 }: RentManagersTeamSubHeaderCardProps) {
   return (
-    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "16vh" }}>
+    <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: "16vh" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h6" fontWeight={700}>
           {title}
@@ -30,21 +34,38 @@ export default function RentManagersTeamSubHeaderCard({
       <Box sx={{ display: "flex", gap: 2 }}>
         <Box>
           <Typography variant="h5" fontFamily="monospace">
-            {leftValue}
+            {leftValue.toLocaleString() ?? 0}
           </Typography>
           <Typography variant="caption" color="warning">
             {leftSubTitle}
           </Typography>
         </Box>
-        <Divider orientation="vertical" sx={{ height: 50 }} />
-        <Box>
-          <Typography variant="h5" fontFamily="monospace">
-            {rightValue}
-          </Typography>
-          <Typography variant="caption" color="primary">
-            {rightsubTitle}
-          </Typography>
-        </Box>
+        {centerSubTitle && (
+          <>
+            <Divider orientation="vertical" sx={{ height: 50 }} />
+            <Box>
+              <Typography variant="h5" fontFamily="monospace">
+                {centerValue?.toLocaleString() ?? "0"}
+              </Typography>
+              <Typography variant="caption" color="primary">
+                {centerSubTitle}
+              </Typography>
+            </Box>
+          </>
+        )}
+        {rightSubTitle && (
+          <>
+            <Divider orientation="vertical" sx={{ height: 50 }} />
+            <Box>
+              <Typography variant="h5" fontFamily="monospace">
+                {rightValue?.toLocaleString() ?? "0"}
+              </Typography>
+              <Typography variant="caption" color="primary">
+                {rightSubTitle}
+              </Typography>
+            </Box>
+          </>
+        )}
       </Box>
     </Box>
   );

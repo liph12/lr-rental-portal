@@ -1,4 +1,17 @@
-import type { RentalSale, RentManager, Team } from "./types";
+import type {
+  RentalSale,
+  RentManager,
+  Team,
+  DateRange,
+  ClusteredRange,
+  User,
+} from "./types";
+
+export const getStoredUserData = () =>
+  JSON.parse(localStorage.getItem("user_data") ?? "{}");
+
+export const storeUserData = (user: User) =>
+  localStorage.setItem("user_data", JSON.stringify(user));
 
 export const getMonthsBetween = (from?: string, to?: string) => {
   const result = [];
@@ -130,4 +143,106 @@ export const formatDatePH = (dateStr: string) => {
     day: "2-digit",
     year: "numeric",
   });
+};
+
+const formatNumber = (month: number) => {
+  const actualMonth = month < 10 ? `0${month}` : month;
+
+  return actualMonth;
+};
+
+export const getMappedPinningDates = (): DateRange[] => {
+  const CURRENT_YEAR = new Date().getFullYear();
+  const MONTHS = 12;
+  const mappedDates: DateRange[] = [];
+  let itr = 0;
+
+  for (let i = 0; i < MONTHS; i++) {
+    if (itr < 1) {
+      const month = i + 1;
+      const actualMonth = formatNumber(month);
+      itr++;
+
+      mappedDates.push({
+        from: `${CURRENT_YEAR}-${actualMonth}`,
+        to: `${CURRENT_YEAR}-${formatNumber(month + 1)}`,
+      });
+    } else {
+      itr = 0;
+    }
+  }
+
+  return mappedDates;
+};
+
+const MONTH_NAMES = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+
+function getLastDayOfMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+export function generateBiMonthlyClusters(year: number): ClusteredRange[] {
+  const result: ClusteredRange[] = [];
+
+  for (let month = 1; month <= 12; month += 2) {
+    const nextMonth = month + 1;
+
+    const firstMonthStr = String(month).padStart(2, "0");
+    const secondMonthStr = String(nextMonth).padStart(2, "0");
+
+    const firstMonthLastDay = getLastDayOfMonth(year, month);
+    const secondMonthLastDay = getLastDayOfMonth(year, nextMonth);
+
+    result.push({
+      name: `${MONTH_NAMES[month - 1]}-${MONTH_NAMES[nextMonth - 1]}`,
+      monthFrom: `${year}-${firstMonthStr}`,
+      monthTo: `${year}-${secondMonthStr}`,
+      from: {
+        start: `${year}-${firstMonthStr}-01`,
+        end: `${year}-${firstMonthStr}-${String(firstMonthLastDay).padStart(
+          2,
+          "0"
+        )}`,
+      },
+      to: {
+        start: `${year}-${secondMonthStr}-01`,
+        end: `${year}-${secondMonthStr}-${String(secondMonthLastDay).padStart(
+          2,
+          "0"
+        )}`,
+      },
+    });
+  }
+
+  return result;
+}
+
+export const getCurrentDateFormatted = () => {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+export const getTodayMonthFormatted = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 };

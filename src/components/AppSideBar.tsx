@@ -6,9 +6,8 @@ export default function AppSideBar() {
     <Box
       sx={{
         height: "100vh",
-        width: 250,
-        borderRight: "1px solid #ddd",
-        pr: 1,
+        width: 260,
+        pr: 2,
         py: 2,
       }}
     >

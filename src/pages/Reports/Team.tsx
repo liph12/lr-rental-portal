@@ -1,9 +1,9 @@
 import { Container, Box, Chip, Grid, Button } from "@mui/material";
 import { useAppContext } from "../../providers/AppProvider";
 import { useParams } from "react-router-dom";
-import type { RentManager, Team } from "../../types";
+import type { RentalSale, RentManager, Team } from "../../types";
 import { useState, useEffect } from "react";
-import RentManagersTeamHeaderCard from "../../components/cards/RentManagersTeamHeaderCard";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import PropertyCardSkeleton from "../../components/cards/PropertyCardSkeleton";
 import RentManagersTeamSubHeaderCard from "../../components/cards/RentManagersTeamSubHeaderCard";
 import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
@@ -21,19 +21,74 @@ export default function Team() {
   const [allDirectRentManagers, setAllDirectRentManagers] = useState<
     RentManager[] | null
   >(null);
-  const [directRentManagers, setDirectRentManagers] = useState<
-    RentManager[] | null
-  >(null);
-  const [unitManagersWithSales, setUnitManagersWithSales] = useState<
+  // const [directRentManagers, setDirectRentManagers] = useState<
+  //   RentManager[] | null
+  // >(null);
+  // const [unitManagersWithSales, setUnitManagersWithSales] = useState<
+  //   RentManager[] | null
+  // >(null);
+  const [unitManagersNetwork, setUnitManagersNetwork] = useState<
     RentManager[] | null
   >(null);
   const [dataDisplay, setDataDisplay] = useState<DataDisplay>("um-network");
-  const [totalRemittance, setTotalRemittance] = useState<number>(0);
+  const [totalTLShares, setTotalTLShares] = useState(0);
+  const [totalDirectShares, setTotalDirectShares] = useState(0);
 
   const toggleDataOutput = () =>
     setDataDisplay((prev) =>
       prev === "um-network" ? "directs" : "um-network"
     );
+
+  const calculateTotalShares = (sales: RentalSale[], qualified: boolean) => {
+    let totalShare = 0;
+
+    sales.forEach((s) => {
+      const SHARE = s.remittance / 2;
+      const ACTUAL_SHARE = qualified ? SHARE / 2 : SHARE;
+
+      totalShare += ACTUAL_SHARE;
+    });
+
+    return totalShare;
+  };
+
+  const getTLTotalSharesUMNetwork = (
+    st: Team[],
+    rentManagers: RentManager[]
+  ) => {
+    let sumOfRentalShares = 0;
+
+    if (st) {
+      st.forEach((st) => {
+        const network = rentManagers?.filter(
+          (rm) =>
+            rm.hasRemittanceLevel &&
+            rm.subTeam.id === st.id &&
+            rm.email !== st.leaderEmail
+        );
+        network?.forEach((rm) => {
+          sumOfRentalShares += calculateTotalShares(
+            rm.rentalSales,
+            st.hasRemittanceLevelCount >= 5
+          );
+        });
+      });
+    }
+
+    return sumOfRentalShares;
+  };
+
+  const getTLTotalSharesDirects = (directs: RentManager[]) => {
+    let sumOfRentalShares = 0;
+
+    if (directs) {
+      directs?.forEach((rm) => {
+        sumOfRentalShares += calculateTotalShares(rm.rentalSales, false);
+      });
+    }
+
+    return sumOfRentalShares;
+  };
 
   useEffect(() => {
     if (team_id) {
@@ -49,29 +104,35 @@ export default function Team() {
         setTeam(searchedTeam);
 
         if (_rentManagers) {
-          const total = _rentManagers.reduce(
-            (total, rm) => total + rm?.totalRemittance ?? 0,
-            0
-          );
           const directs = _rentManagers.filter(
             (r) => r.subTeamName === "Direct"
           );
           const ums = _rentManagers.filter(
             (r) => r.email === r.subTeam.leaderEmail
           );
-          const umNetwork = _rentManagers.filter(
+          const _umNetwork = _rentManagers.filter(
             (r) =>
-              r.subTeamName !== "Direct" && r.email !== r.subTeam.leaderEmail
+              r.subTeamName !== "Direct" &&
+              r.email !== r.subTeam.leaderEmail &&
+              r.hasRemittanceLevel
           );
-          const subTeamStatistics = createSubTeamStatistics(umNetwork);
+          const subTeamStatistics = createSubTeamStatistics(_umNetwork);
           const sortedRmDirects = [...directs, ...ums].sort(
             (a, b) => (b.totalRemittance ?? 0) - (a.totalRemittance ?? 0)
           );
+          const _totalTLShares = getTLTotalSharesUMNetwork(
+            subTeamStatistics,
+            _umNetwork
+          );
+          const totalDirectShares = getTLTotalSharesDirects(sortedRmDirects);
 
-          setUnitManagersWithSales(ums);
-          setDirectRentManagers(directs);
+          setUnitManagersNetwork(_umNetwork);
+          // setUnitManagersWithSales(ums);
+          // setDirectRentManagers(directs);
           setAllDirectRentManagers(sortedRmDirects);
           setUnitManagers(subTeamStatistics);
+          setTotalTLShares(_totalTLShares);
+          setTotalDirectShares(totalDirectShares);
         }
       }
     }
@@ -97,10 +158,17 @@ export default function Team() {
             }}
           />
           <Grid container spacing={2}>
-            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
               {team ? (
                 <>
-                  <RentManagersTeamHeaderCard team={team} />
+                  <RentManagersTeamSubHeaderCard
+                    title={team.name}
+                    centerValue={totalTLShares + totalDirectShares}
+                    centerSubTitle="Total Share"
+                    leftValue={team.hasRemittanceLevelCount}
+                    leftSubTitle="Rent Managers"
+                    Icon={GroupsOutlinedIcon}
+                  />
                 </>
               ) : (
                 <>
@@ -108,15 +176,33 @@ export default function Team() {
                 </>
               )}
             </Grid>
-            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
+            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
+              {team ? (
+                <>
+                  <RentManagersTeamSubHeaderCard
+                    title="UM Network"
+                    leftValue={unitManagersNetwork?.length ?? "0"}
+                    leftSubTitle="Rent Managers"
+                    centerValue={totalTLShares}
+                    centerSubTitle="Total Share"
+                    Icon={AccountTreeOutlinedIcon}
+                  />
+                </>
+              ) : (
+                <>
+                  <PropertyCardSkeleton />
+                </>
+              )}
+            </Grid>
+            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
               {team ? (
                 <>
                   <RentManagersTeamSubHeaderCard
                     title="Team Directs"
-                    leftValue={directRentManagers?.length ?? "0"}
+                    leftValue={allDirectRentManagers?.length ?? 0}
                     leftSubTitle="Rent Managers"
-                    rightValue={unitManagersWithSales?.length ?? "0"}
-                    rightsubTitle="Unit Managers"
+                    centerValue={totalDirectShares}
+                    centerSubTitle="Total Share"
                     Icon={AccountTreeOutlinedIcon}
                   />
                 </>
@@ -146,7 +232,7 @@ export default function Team() {
               sx={{ textTransform: "none", borderRadius: 0 }}
               onClick={toggleDataOutput}
             >
-              Directs
+              Team Directs
             </Button>
           </Box>
           <Box sx={{ overflow: "auto", height: "55vh" }}>
@@ -158,7 +244,10 @@ export default function Team() {
                       <Grid container spacing={2}>
                         {unitManagers?.map((r) => (
                           <Grid size={{ lg: 6, md: 6, xs: 12 }} key={r.id}>
-                            <UnitManagerTeamCard {...r} />
+                            <UnitManagerTeamCard
+                              team={r}
+                              rentManagers={unitManagersNetwork}
+                            />
                           </Grid>
                         ))}
                       </Grid>

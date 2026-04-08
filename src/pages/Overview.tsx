@@ -1,13 +1,17 @@
-import { Box, Container, Grid, Chip } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 import PropertyCard from "../components/cards/PropertyCard";
 import BedRoundedIcon from "@mui/icons-material/BedRounded";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
 import GarageOutlinedIcon from "@mui/icons-material/GarageOutlined";
 import CountertopsOutlinedIcon from "@mui/icons-material/CountertopsOutlined";
 import PropertyCardSkeleton from "../components/cards/PropertyCardSkeleton";
-import PropertyBarChart from "../components/charts/PropertyBarChart";
 import WindowOutlinedIcon from "@mui/icons-material/WindowOutlined";
-import AreaBarChart from "../components/charts/AreaBarChart";
+import MeetingRoomOutlinedIcon from "@mui/icons-material/MeetingRoomOutlined";
+import OverviewInfoCardGroup from "../components/cards/OverviewInfoCardGroup";
+import HolidayVillageOutlinedIcon from "@mui/icons-material/HolidayVillageOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import CorporateFareOutlinedIcon from "@mui/icons-material/CorporateFareOutlined";
+import CottageOutlinedIcon from "@mui/icons-material/CottageOutlined";
 import { useAppContext } from "../providers/AppProvider";
 
 const getPropertyUnitIcon = (k: string) => {
@@ -20,29 +24,31 @@ const getPropertyUnitIcon = (k: string) => {
       return CountertopsOutlinedIcon;
     case "Penthouse":
       return WindowOutlinedIcon;
+    case "Townhouse":
+      return HolidayVillageOutlinedIcon;
+    case "Warehouse":
+      return WarehouseOutlinedIcon;
+    case "Commercial":
+      return CorporateFareOutlinedIcon;
+    case "House & Lot":
+      return WindowOutlinedIcon;
+    case "Office Space":
+      return MeetingRoomOutlinedIcon;
+    case "Beach House":
+      return CottageOutlinedIcon;
     default:
       return BedRoundedIcon;
   }
 };
 
 export default function Overview() {
-  const { areaStatistics, propertyUnits } = useAppContext();
+  const { propertyUnits } = useAppContext();
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <Box sx={{ mb: 10 }}>
         <Box sx={{ mt: 2 }}>
-          <Chip
-            label="Condominium Units Overview (Ave. Rate)"
-            size="small"
-            color="warning"
-            sx={{
-              mb: 2,
-              backgroundColor: "rgba(240, 194, 138, 0.44)",
-              color: "warning.main",
-              border: "1px solid rgb(230, 136, 21)",
-            }}
-          />
+          <OverviewInfoCardGroup />
           <Grid container spacing={2}>
             {propertyUnits ? (
               Object.entries(propertyUnits).map(([k, v]) => (
@@ -51,51 +57,21 @@ export default function Overview() {
                     Icon={getPropertyUnitIcon(k)}
                     label={k}
                     rate={v.rate}
+                    floorArea={v.floorArea}
+                    lotArea={v.lotArea}
                     units={v.units}
                   />
                 </Grid>
               ))
             ) : (
               <>
-                {[1, 2, 3, 4, 5, 6, 7].map((r) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((r) => (
                   <Grid size={{ lg: 4, md: 6, xs: 12 }} key={r}>
                     <PropertyCardSkeleton />
                   </Grid>
                 ))}
               </>
             )}
-          </Grid>
-        </Box>
-        <Box sx={{ mt: 2 }}>
-          <Grid container spacing={2}>
-            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-              <Chip
-                label="Properties Overview (TCP)"
-                size="small"
-                color="warning"
-                sx={{
-                  mb: 2,
-                  backgroundColor: "rgba(240, 194, 138, 0.44)",
-                  color: "warning.main",
-                  border: "1px solid rgb(230, 136, 21)",
-                }}
-              />
-              <PropertyBarChart />
-            </Grid>
-            <Grid size={{ lg: 6, md: 6, xs: 12 }}>
-              <Chip
-                label="Area Overview (Total Remittance)"
-                size="small"
-                color="warning"
-                sx={{
-                  mb: 2,
-                  backgroundColor: "rgba(240, 194, 138, 0.44)",
-                  color: "warning.main",
-                  border: "1px solid rgb(230, 136, 21)",
-                }}
-              />
-              <AreaBarChart areaStatistics={areaStatistics} />
-            </Grid>
           </Grid>
         </Box>
       </Box>

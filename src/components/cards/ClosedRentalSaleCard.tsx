@@ -15,7 +15,7 @@ export default function ClosedRentalSaleCard({
   const ACTUAL_SHARE = qualified ? SHARE / 2 : SHARE;
 
   return (
-    <Box sx={{ py: 1, px: 2, border: "1px solid #ddd", height: "auto" }}>
+    <Box sx={{ py: 1, px: 2, bgcolor: "#fff", height: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="body2">{rentalSale.client}</Typography>
       </Box>

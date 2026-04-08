@@ -10,7 +10,7 @@ export default function PropertyBarChart() {
       sx={{
         height: "30vh",
         overflow: "auto",
-        border: "1px solid #ddd",
+        bgcolor: "#fff",
         p: 2,
       }}
     >
@@ -19,6 +19,7 @@ export default function PropertyBarChart() {
           {properties.map((p, k) => {
             const MAX_VALUE = properties[0].tcp;
             const progress = Math.abs((p.tcp / MAX_VALUE) * 100);
+            // const averageRentalRate = p.tcp / p.total_units;
 
             return (
               <HorizontalChartBar
