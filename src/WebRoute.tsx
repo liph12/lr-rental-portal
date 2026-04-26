@@ -8,6 +8,7 @@ import ClustersProgress from "./pages/PinningTracker/ClustersProgress";
 import Login from "./pages/Auth/Login";
 import { useAppContext } from "./providers/AppProvider";
 import ErrorPage from "./pages/ErrorPage";
+import Submission from "./pages/Reports/Submission";
 
 function WebRoute() {
   const { user } = useAppContext();
@@ -21,7 +22,7 @@ function WebRoute() {
           <Route path="reports/:team_id" element={<TeamReport />} />
           <Route
             path="reports/rental-submissions/:sub_id"
-            element={<TeamReport />}
+            element={<Submission />}
           />
           <Route path="pinning-tracker" element={<PinningTracker />}>
             <Route path=":rm_id" element={<ClustersProgress />} />
