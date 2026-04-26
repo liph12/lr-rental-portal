@@ -36,7 +36,7 @@ export default function Team() {
 
   const toggleDataOutput = () =>
     setDataDisplay((prev) =>
-      prev === "um-network" ? "directs" : "um-network"
+      prev === "um-network" ? "directs" : "um-network",
     );
 
   const calculateTotalShares = (sales: RentalSale[], qualified: boolean) => {
@@ -54,7 +54,7 @@ export default function Team() {
 
   const getTLTotalSharesUMNetwork = (
     st: Team[],
-    rentManagers: RentManager[]
+    rentManagers: RentManager[],
   ) => {
     let sumOfRentalShares = 0;
 
@@ -64,12 +64,12 @@ export default function Team() {
           (rm) =>
             rm.hasRemittanceLevel &&
             rm.subTeam.id === st.id &&
-            rm.email !== st.leaderEmail
+            rm.email !== st.leaderEmail,
         );
         network?.forEach((rm) => {
           sumOfRentalShares += calculateTotalShares(
             rm.rentalSales,
-            st.hasRemittanceLevelCount >= 5
+            st.hasRemittanceLevelCount >= 5,
           );
         });
       });
@@ -97,7 +97,7 @@ export default function Team() {
       const teamId = parseInt(team_id);
       const searchedTeam = teams?.find((t) => t.id === teamId);
       const _rentManagers = rentManagers?.filter(
-        (r) => r.hasRemittanceLevel && r.team.id === teamId
+        (r) => r.hasRemittanceLevel && r.team.id === teamId,
       );
 
       if (searchedTeam) {
@@ -105,24 +105,24 @@ export default function Team() {
 
         if (_rentManagers) {
           const directs = _rentManagers.filter(
-            (r) => r.subTeamName === "Direct"
+            (r) => r.subTeamName === "Direct",
           );
           const ums = _rentManagers.filter(
-            (r) => r.email === r.subTeam.leaderEmail
+            (r) => r.email === r.subTeam.leaderEmail,
           );
           const _umNetwork = _rentManagers.filter(
             (r) =>
               r.subTeamName !== "Direct" &&
               r.email !== r.subTeam.leaderEmail &&
-              r.hasRemittanceLevel
+              r.hasRemittanceLevel,
           );
           const subTeamStatistics = createSubTeamStatistics(_umNetwork);
           const sortedRmDirects = [...directs, ...ums].sort(
-            (a, b) => (b.totalRemittance ?? 0) - (a.totalRemittance ?? 0)
+            (a, b) => (b.totalRemittance ?? 0) - (a.totalRemittance ?? 0),
           );
           const _totalTLShares = getTLTotalSharesUMNetwork(
             subTeamStatistics,
-            _umNetwork
+            _umNetwork,
           );
           const totalDirectShares = getTLTotalSharesDirects(sortedRmDirects);
 

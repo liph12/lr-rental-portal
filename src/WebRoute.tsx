@@ -19,6 +19,10 @@ function WebRoute() {
           <Route path="" element={<Overview />} />
           <Route path="reports" element={<Reports />} />
           <Route path="reports/:team_id" element={<TeamReport />} />
+          <Route
+            path="reports/rental-submissions/:sub_id"
+            element={<TeamReport />}
+          />
           <Route path="pinning-tracker" element={<PinningTracker />}>
             <Route path=":rm_id" element={<ClustersProgress />} />
           </Route>
