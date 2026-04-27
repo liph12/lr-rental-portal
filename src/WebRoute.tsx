@@ -8,12 +8,14 @@ import ClustersProgress from "./pages/PinningTracker/ClustersProgress";
 import Login from "./pages/Auth/Login";
 import { useAppContext } from "./providers/AppProvider";
 import ErrorPage from "./pages/ErrorPage";
+import RentalReportForm from "./pages/RentalReportForm";
 
 function WebRoute() {
   const { user } = useAppContext();
 
   return (
     <Routes>
+      <Route path="/rental-report-form" element={<RentalReportForm />} />
       {user ? (
         <Route path="/" element={<AppLayout />}>
           <Route path="" element={<Overview />} />
