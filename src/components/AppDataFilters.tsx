@@ -17,7 +17,7 @@ import {
 } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { LOCATIONS } from "../app-data";
-import { appRoutes } from "../app-data";
+import { appRoutes, staffAppRoutes } from "../app-data";
 import { hasRemittanceLevel, isValidDateRange } from "../helpers";
 import type { RentManager, Team, AreaStatistics } from "../types";
 import axios from "axios";
@@ -54,6 +54,7 @@ export default function AppDataFilter() {
     // setDateYear,
     dateRange,
     // dateYear,
+    isAdmin,
   } = useAppContext();
   const loc = useLocation();
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function AppDataFilter() {
     label: loc.name,
   }));
   const currentArea = locationsAutocomplete.find(
-    (l) => l.id === allParams?.area
+    (l) => l.id === allParams?.area,
   );
   const [location, setLocation] = useState<AutocompleteType | null>({
     id: currentArea?.id ?? "nationwide",
@@ -157,14 +158,14 @@ export default function AppDataFilter() {
 
     const fetchRentManagers = async (query: string) => {
       const response = await axios.get(
-        `https://leuteriorealty.com/api/rental/rent-managers-sales${query}`
+        `https://leuteriorealty.com/api/rental/rent-managers-sales${query}`,
       );
       const { data } = response.data;
       const _rentManagers: RentManager[] = data;
       const rentManagersWithRemittances = _rentManagers.map((r) => {
         const totalRemittance = r.rentalSales.reduce(
           (total, sale) => total + sale.remittance,
-          0
+          0,
         );
 
         return {
@@ -178,18 +179,18 @@ export default function AppDataFilter() {
             ? hasRemittanceLevel(
                 r.rentalSales,
                 allParams?.from ?? dateRange.from,
-                allParams?.to ?? dateRange.to
+                allParams?.to ?? dateRange.to,
               )
             : hasRemittanceLevel(r.rentalSales),
         };
       });
 
       rentManagersWithRemittances.sort(
-        (a, b) => b.totalRemittance - a.totalRemittance
+        (a, b) => b.totalRemittance - a.totalRemittance,
       );
 
       const _tmpAreaStat: AreaStatistics[] = rentManagersWithRemittances.map(
-        (r) => ({ id: r.area, name: r.areaName, value: r.totalRemittance })
+        (r) => ({ id: r.area, name: r.areaName, value: r.totalRemittance }),
       );
 
       const _areaStatistics = [
@@ -208,7 +209,7 @@ export default function AppDataFilter() {
 
     const fetchPropertyCondoUnits = async (query: string) => {
       const response = await axios.get(
-        `https://leuteriorealty.com/api/rental/property-condo-overview${query}`
+        `https://leuteriorealty.com/api/rental/property-condo-overview${query}`,
       );
       const data = response.data;
 
@@ -217,7 +218,7 @@ export default function AppDataFilter() {
 
     const fetchProperties = async (query: string) => {
       const response = await axios.get(
-        `https://leuteriorealty.com/api/rental/property-overview${query}`
+        `https://leuteriorealty.com/api/rental/property-overview${query}`,
       );
       const data = response.data;
 
@@ -254,6 +255,8 @@ export default function AppDataFilter() {
 
   //   setDateRange((prev) => ({ ...prev, from: _from, to: _to }));
   // }, [dateYear]);
+
+  const BASE_ROUTES = isAdmin ? appRoutes : staffAppRoutes;
 
   return (
     <>
@@ -342,7 +345,7 @@ export default function AppDataFilter() {
       </Box>
       <Box>
         <Divider sx={{ my: 2 }} />
-        {appRoutes.map((r) => {
+        {BASE_ROUTES.map((r) => {
           return (
             <Typography
               key={r.path}

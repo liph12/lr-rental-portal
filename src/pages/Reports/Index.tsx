@@ -2,8 +2,12 @@ import { Chip, Box, Container } from "@mui/material";
 import RentManagersTable from "../../components/tables/RentManagersTable";
 import RentManagerTeamsTable from "../../components/tables/RentManagerTeamsTable";
 import RentalRequirementsTable from "../../components/tables/RentalRequirementsTable";
+import RentalPerCitiesTable from "../../components/tables/RentalPerCitiesTable";
+import { useAppContext } from "../../providers/AppProvider";
 
 export default function Reports() {
+  const { isAdmin } = useAppContext();
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mb: 10 }}>
@@ -23,7 +27,7 @@ export default function Reports() {
         </Box>
         <Box sx={{ mt: 2 }}>
           <Chip
-            label="Rent Manager Teams (Total Remittance)"
+            label="Rental Remittance"
             size="small"
             color="warning"
             sx={{
@@ -33,22 +37,40 @@ export default function Reports() {
               border: "1px solid rgb(56, 116, 193)",
             }}
           />
-          <RentManagerTeamsTable />
+          <RentalPerCitiesTable />
         </Box>
-        <Box sx={{ mt: 2 }}>
-          <Chip
-            label="Rent Managers (Total Remittance)"
-            size="small"
-            color="warning"
-            sx={{
-              mb: 2,
-              backgroundColor: "rgba(181, 214, 249, 0.58)",
-              color: "primary.main",
-              border: "1px solid rgb(56, 116, 193)",
-            }}
-          />
-          <RentManagersTable />
-        </Box>
+        {isAdmin && (
+          <>
+            <Box sx={{ mt: 2 }}>
+              <Chip
+                label="Rent Manager Teams (Total Remittance)"
+                size="small"
+                color="warning"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "rgba(181, 214, 249, 0.58)",
+                  color: "primary.main",
+                  border: "1px solid rgb(56, 116, 193)",
+                }}
+              />
+              <RentManagerTeamsTable />
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Chip
+                label="Rent Managers (Total Remittance)"
+                size="small"
+                color="warning"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "rgba(181, 214, 249, 0.58)",
+                  color: "primary.main",
+                  border: "1px solid rgb(56, 116, 193)",
+                }}
+              />
+              <RentManagersTable />
+            </Box>
+          </>
+        )}
       </Box>
     </Container>
   );

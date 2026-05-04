@@ -172,3 +172,16 @@ export const appRoutes = [
     icon: Insights,
   },
 ];
+
+export const staffAppRoutes = [
+  {
+    path: "/",
+    name: "Overview",
+    icon: Dashboard,
+  },
+  {
+    path: "/reports",
+    name: "Reports",
+    icon: BarChartOutlined,
+  },
+];

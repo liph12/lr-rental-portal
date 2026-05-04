@@ -457,7 +457,11 @@ export default function Submission() {
                   label={`${agent.team.teamname} · ${agent.team.status}`}
                 />
                 <Chip
-                  label={agent.role.role}
+                  label={
+                    agent.role.role === "SUPERVISOR"
+                      ? "TEAM LEADER"
+                      : agent.role.role
+                  }
                   color="primary"
                   size="small"
                   sx={{ width: "fit-content" }}

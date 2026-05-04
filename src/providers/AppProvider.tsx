@@ -44,13 +44,14 @@ interface AppState {
   setUser: (user: User | null) => void;
   setRentManagers: (rentManagers: RentManager[] | null) => void;
   setPropertyUnits: (
-    propertyUnits: Record<PropertyUnitKey, UnitInfo> | null
+    propertyUnits: Record<PropertyUnitKey, UnitInfo> | null,
   ) => void;
   setTeams: (teams: Team[] | null) => void;
   setProperties: (properties: Property[] | null) => void;
   setAreaStatistics: (areaStatistics: AreaStatistics[] | null) => void;
   setDateRange: React.Dispatch<React.SetStateAction<DateRange>>;
   setDateYear: React.Dispatch<React.SetStateAction<DateYear>>;
+  isAdmin: boolean;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -75,13 +76,19 @@ const getLast30DaysRange = (): DateRange => {
   return { from, to };
 };
 
+const ADMINS = [
+  "leuteriomay@gmail.com",
+  "libresphilip14@gmail.com",
+  "delacalzadavien@gmail.com",
+];
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const storedUser = getStoredUserData();
   const [searchParams] = useSearchParams();
   const { from, to } = getLast30DaysRange();
   const allParams = Object.fromEntries(searchParams.entries());
   const currentYear = parseInt(
-    allParams?.year ?? `${new Date().getFullYear()}`
+    allParams?.year ?? `${new Date().getFullYear()}`,
   );
   const [cutOffDates, setCutOffDates] = useState<DateCutOff[] | null>(null);
   const [propertyUnits, setPropertyUnits] = useState<Record<
@@ -91,12 +98,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [teams, setTeams] = useState<Team[] | null>(null);
   const [properties, setProperties] = useState<Property[] | null>(null);
   const [areaStatistics, setAreaStatistics] = useState<AreaStatistics[] | null>(
-    null
+    null,
   );
   const [rentManagers, setRentManagers] = useState<RentManager[] | null>(null);
   const authToken = localStorage.getItem("authToken") ?? null;
   const [user, setUser] = useState<User | null>(null);
   const [dateYear, setDateYear] = useState<number>(currentYear);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fromDate = allParams?.from ?? from;
   const toDate = allParams?.to ?? to;
   // const _fromDate = allParams?.from
@@ -124,7 +132,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             headers: {
               Authorization: `Bearer ${storedUser.auth_token}`,
             },
-          }
+          },
         );
 
         const { data } = response.data;
@@ -144,7 +152,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           headers: {
             Authorization: `Bearer ${storedUser.auth_token}`,
           },
-        }
+        },
       );
       const data = response.data;
 
@@ -155,6 +163,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     fetchCutOffDates();
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      const isAdmin = ADMINS.some((e) => e === user?.email);
+
+      setIsAdmin(isAdmin);
+    }
+  }, [user]);
+
   if (loading) {
     return <PageLoader />;
   }
@@ -164,6 +180,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       <AppContext.Provider
         value={{
           user,
+          isAdmin,
           authToken,
           desktop,
           rentManagers,
