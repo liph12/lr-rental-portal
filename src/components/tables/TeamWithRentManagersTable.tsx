@@ -30,7 +30,7 @@ export default function TeamWithRentManagers({
       if (rm.pin === "Rent Manager Pro") acc[key].rentManagerPro += 1;
       return acc;
     }, {}),
-  );
+  ).filter((team) => team.rentManager >= 5 || team.rentManagerPro >= 1);
 
   const columns: GridColDef[] = [
     {
