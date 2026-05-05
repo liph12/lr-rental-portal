@@ -184,4 +184,9 @@ export const staffAppRoutes = [
     name: "Reports",
     icon: BarChartOutlined,
   },
+  {
+    path: "/pinning-tracker",
+    name: "Pinning Tracker",
+    icon: Insights,
+  },
 ];
