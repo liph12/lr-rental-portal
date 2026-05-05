@@ -4,10 +4,6 @@ import type { GridColDef } from "@mui/x-data-grid";
 import { useAppContext } from "../../providers/AppProvider";
 import { useMemo } from "react";
 
-function parseRemittance(value: string): number {
-  return parseFloat((value ?? "0").replace(/,/g, "")) || 0;
-}
-
 function formatRemittance(value: number): string {
   return value.toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -21,35 +17,29 @@ export default function RentalPerCitiesTable() {
   const { groupedRows, grandTotal } = useMemo(() => {
     if (!rentManagers) return { groupedRows: [], grandTotal: 0 };
 
-    const grouped = new Map<string, { total: number; count: number }>();
+    const grouped = new Map<string, number>();
 
-    for (const row of rentManagers) {
-      const area = row.areaName ?? "Unknown";
-      const amount = parseRemittance(row.totalRemittanceStr);
-      const existing = grouped.get(area);
-
-      if (existing) {
-        existing.total += amount;
-        existing.count += 1;
-      } else {
-        grouped.set(area, { total: amount, count: 1 });
-      }
+    for (const manager of rentManagers) {
+      const area = manager.areaName ?? "Unknown";
+      const tcpSum = (manager.rentalSales ?? []).reduce(
+        (acc, sale) => acc + (sale.tcp ?? 0),
+        0,
+      );
+      grouped.set(area, (grouped.get(area) ?? 0) + tcpSum);
     }
 
     const rows = Array.from(grouped.entries())
-      .map(([areaName, { total }]) => ({ areaName, total }))
+      .map(([areaName, total]) => ({ areaName, total }))
       .sort((a, b) => b.total - a.total)
       .map(({ areaName, total }, index) => ({
         id: index,
         rank: index + 1,
         areaName,
         totalRemittanceStr: formatRemittance(total),
+        total,
       }));
 
-    const grandTotal = rows.reduce(
-      (acc, row) => acc + parseRemittance(row.totalRemittanceStr),
-      0,
-    );
+    const grandTotal = rows.reduce((acc, row) => acc + row.total, 0);
 
     return { groupedRows: rows, grandTotal };
   }, [rentManagers]);
@@ -67,9 +57,15 @@ export default function RentalPerCitiesTable() {
     },
     {
       field: "totalRemittanceStr",
-      headerName: "Total Remittance (20%)",
-      width: 250,
-      sortComparator: (a, b) => parseRemittance(a) - parseRemittance(b),
+      headerName: "Total Sales",
+      width: 180,
+      sortComparator: (_a, _b, cellParamsA, cellParamsB) => {
+        const totalA =
+          (cellParamsA as any).api.getRow(cellParamsA.id)?.total ?? 0;
+        const totalB =
+          (cellParamsB as any).api.getRow(cellParamsB.id)?.total ?? 0;
+        return totalA - totalB;
+      },
     },
   ];
 
@@ -80,6 +76,7 @@ export default function RentalPerCitiesTable() {
         rank: null,
         areaName: "Grand Total",
         totalRemittanceStr: formatRemittance(grandTotal),
+        total: grandTotal,
       },
     ],
   };

@@ -13,8 +13,8 @@ import { useEffect, useState } from "react";
 import { Grid, Container, Box, Button } from "@mui/material";
 import OverviewPinCard from "../../components/cards/OverviewPinCard";
 import CertifiedRentManagersTable from "../../components/tables/CertifiedRentManagersTable";
+import TeamWithRentManagers from "../../components/tables/TeamWithRentManagersTable";
 import { ArrowBack } from "@mui/icons-material";
-// import PinningTrackerCard from "../../components/cards/PinningTrackerCard";
 import rm from "../../assets/rentmanager.png";
 import rph from "../../assets/rentph.png";
 import rmpro from "../../assets/rmpro.png";
@@ -79,6 +79,7 @@ export interface PinningTrackerType {
   name: string;
   email: string;
   team: string;
+  subTeam: string;
   area: string;
   pinningClusters: PinningCluster[];
 }
@@ -89,6 +90,7 @@ export interface QualifiedRentManager {
   name: string;
   email: string;
   team: string;
+  subTeam: string;
   area: string;
   cluster: string;
   dateQualified?: string | null;
@@ -100,10 +102,6 @@ export default function PinningTracker() {
   const { cutOffDates, rentManagers, dateYear } = useAppContext();
   const currentDate = getCurrentDateFormatted();
   const monthlyClusters = generateBiMonthlyClusters(dateYear);
-  // const [trackedPinningsRows, setTrackedPinningsRows] = useState<
-  //   PinningTrackerType[]
-  // >([]);
-
   const [qualifiedRentManagers, setQualifiedRentManagers] = useState<
     QualifiedRentManager[]
   >([]);
@@ -115,7 +113,7 @@ export default function PinningTracker() {
     s: RentalSale,
     cutOff: string,
     from: string,
-    to: string
+    to: string,
   ) => {
     const dateAdded = s.remittanceDateAdded;
     const dateRes = s.remittanceDate;
@@ -132,19 +130,19 @@ export default function PinningTracker() {
 
   const getClusteredSales = (
     cluster: ClusteredRange,
-    sales: RentalSale[]
+    sales: RentalSale[],
   ): SalesCluster => {
     const dateRangeCutOff = getDateRangeCutOff(
       cluster.monthFrom,
-      cluster.monthTo
+      cluster.monthTo,
     );
     const dateToCutOff =
       dateRangeCutOff.to === "" ? currentDate : dateRangeCutOff.to;
     const rsFrom: RentalSale[] = sales.filter(
-      (s) => s.remittanceMonth === cluster.monthFrom
+      (s) => s.remittanceMonth === cluster.monthFrom,
     );
     const rsTo: RentalSale[] = sales.filter(
-      (s) => s.remittanceMonth === cluster.monthTo
+      (s) => s.remittanceMonth === cluster.monthTo,
     );
 
     return {
@@ -155,8 +153,8 @@ export default function PinningTracker() {
             s,
             dateRangeCutOff.from,
             cluster.from.start,
-            cluster.from.end
-          )
+            cluster.from.end,
+          ),
         ),
       },
       end: {
@@ -166,8 +164,8 @@ export default function PinningTracker() {
             s,
             dateToCutOff,
             cluster.to.start,
-            cluster.to.end
-          )
+            cluster.to.end,
+          ),
         ),
       },
     };
@@ -197,7 +195,7 @@ export default function PinningTracker() {
   const getQualifiedClusteredSales = (
     sales: RentalSale[],
     threshold: number,
-    clusters: RemittanceCluster[]
+    clusters: RemittanceCluster[],
   ) => {
     let total = sales.reduce((sum, s) => sum + s.remittance, 0);
     let offset = total - threshold;
@@ -227,7 +225,8 @@ export default function PinningTracker() {
       id: rm.agentId,
       name: `${rm.firstName} ${rm.lastName}`,
       email: rm.email,
-      team: rm.teamName,
+      team: `${rm.teamName} (${rm.team.leader})`,
+      subTeam: `${rm.subTeamName} (${rm.subTeam.id === null ? "N/A" : rm.subTeam.leader})`,
       area: rm.areaName,
       pinningClusters: [],
     };
@@ -236,11 +235,11 @@ export default function PinningTracker() {
       const { start, end } = getClusteredSales(m, rm.rentalSales);
       const sumOfDeltaStart = start.covered.reduce(
         (total, sale) => total + sale.remittance,
-        0
+        0,
       );
       const sumOfDeltaEnd = end.covered.reduce(
         (total, sale) => total + sale.remittance,
-        0
+        0,
       );
       const overAll = [...start.covered, ...end.covered];
       const hasStartPin = sumOfDeltaStart >= THRESHOLDS.RENT_MANAGER;
@@ -282,13 +281,13 @@ export default function PinningTracker() {
       const totalRemittance = hasStartPin
         ? sumOfStartToEnd
         : sumOfDeltaEnd < THRESHOLDS.RENT_MANAGER
-        ? sumOfStartToEnd
-        : sumOfDeltaEnd;
+          ? sumOfStartToEnd
+          : sumOfDeltaEnd;
       const qualifiedSales = hasStartPin
         ? overAll
         : sumOfDeltaEnd < THRESHOLDS.RENT_MANAGER
-        ? overAll
-        : end.covered;
+          ? overAll
+          : end.covered;
 
       const clusterDetail = {
         cluster: m.name,
@@ -299,63 +298,31 @@ export default function PinningTracker() {
         end: end.covered,
       };
 
-      // const remittanceClusterRm = getQualifiedClusteredSales(
-      //   qualifiedSales,
-      //   THRESHOLDS.RENT_MANAGER,
-      //   []
-      // );
-      // const remittanceClusterRentPh = getQualifiedClusteredSales(
-      //   qualifiedSales,
-      //   THRESHOLDS.RENT_PH,
-      //   []
-      // );
-      // const remittanceClusterRmPro = getQualifiedClusteredSales(
-      //   qualifiedSales,
-      //   THRESHOLDS.RENT_MANAGER_PRO,
-      //   []
-      // );
-
-      // const rphSales = getQualifiedClusteredSales(
-      //   qualifiedSales,
-      //   THRESHOLDS.RENT_PH,
-      //   remittanceCluster
-      // );
-      // const rmproSales = getQualifiedClusteredSales(
-      //   qualifiedSales,
-      //   THRESHOLDS.RENT_MANAGER_PRO,
-      //   remittanceCluster
-      // );
-      // const clusters = [...rmSales, ...rphSales, ...rmproSales];
-
-      // for (const s of clusters) {
-
-      // }
-
       pinnings.pinningClusters.push({
         ...clusterDetail,
         rentManagerCluster: [],
         rentManager: getPinningPercentage(
           totalRemittance,
-          THRESHOLDS.RENT_MANAGER
+          THRESHOLDS.RENT_MANAGER,
         ),
         rentManagerDateQualified: getPinDateQualified(
           qualifiedSales,
-          THRESHOLDS.RENT_MANAGER
+          THRESHOLDS.RENT_MANAGER,
         ),
         rentPhCluster: [],
         rentPh: getPinningPercentage(totalRemittance, THRESHOLDS.RENT_PH),
         rentPhDateQualified: getPinDateQualified(
           qualifiedSales,
-          THRESHOLDS.RENT_PH
+          THRESHOLDS.RENT_PH,
         ),
         rentManagerProCluster: [],
         rentManagerPro: getPinningPercentage(
           totalRemittance,
-          THRESHOLDS.RENT_MANAGER_PRO
+          THRESHOLDS.RENT_MANAGER_PRO,
         ),
         rentManagerProDateQualified: getPinDateQualified(
           qualifiedSales,
-          THRESHOLDS.RENT_MANAGER_PRO
+          THRESHOLDS.RENT_MANAGER_PRO,
         ),
       });
     });
@@ -368,7 +335,7 @@ export default function PinningTracker() {
       const BASE = 100;
       let qRm: QualifiedRentManager[] = [];
       const trackedRows: PinningTrackerType[] = rentManagers.map((rm) =>
-        trackPinnings(rm)
+        trackPinnings(rm),
       );
 
       trackedRows.forEach((r) => {
@@ -382,6 +349,7 @@ export default function PinningTracker() {
                 email: r.email,
                 rmId: r.id,
                 team: r.team,
+                subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
                 dateQualified: c.rentManagerDateQualified,
@@ -399,6 +367,7 @@ export default function PinningTracker() {
                 email: r.email,
                 rmId: r.id,
                 team: r.team,
+                subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
                 dateQualified: c.rentPhDateQualified,
@@ -416,6 +385,7 @@ export default function PinningTracker() {
                 email: r.email,
                 rmId: r.id,
                 team: r.team,
+                subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
                 dateQualified: c.rentManagerProDateQualified,
@@ -451,7 +421,7 @@ export default function PinningTracker() {
     <CertifiedRentManagersTable
       tableName={selectedPin}
       rentManagers={qualifiedRentManagers.filter(
-        (q) => q.pin === pin || pin === "All"
+        (q) => q.pin === pin || pin === "All",
       )}
     />
   );
@@ -470,7 +440,7 @@ export default function PinningTracker() {
                   title={PINS.RENT_MANAGER}
                   value={
                     qualifiedRentManagers.filter(
-                      (q) => q.pin === PINS.RENT_MANAGER
+                      (q) => q.pin === PINS.RENT_MANAGER,
                     ).length
                   }
                   loading={rentManagers === null}
@@ -502,7 +472,7 @@ export default function PinningTracker() {
                   title={PINS.RENT_MANAGER_PRO}
                   value={
                     qualifiedRentManagers.filter(
-                      (q) => q.pin === PINS.RENT_MANAGER_PRO
+                      (q) => q.pin === PINS.RENT_MANAGER_PRO,
                     ).length
                   }
                   loading={rentManagers === null}
@@ -543,6 +513,8 @@ export default function PinningTracker() {
         ) : (
           <RenderSelectedPin pin={selectedPin} />
         )}
+
+        <TeamWithRentManagers rentManagers={qualifiedRentManagers} />
 
         {/* <Grid container spacing={2}>
           {trackedPinningsRows.map((pt, k) => {

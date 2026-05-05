@@ -29,6 +29,11 @@ export default function CertifiedRentManagersTable({
       width: 150,
     },
     {
+      field: "subTeam",
+      headerName: "Sub-Team",
+      width: 150,
+    },
+    {
       field: "area",
       headerName: "Area",
       width: 110,
