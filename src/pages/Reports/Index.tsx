@@ -27,7 +27,7 @@ export default function Reports() {
         </Box>
         <Box sx={{ mt: 2 }}>
           <Chip
-            label="Rental Remittance"
+            label="Rental Sales"
             size="small"
             color="warning"
             sx={{
