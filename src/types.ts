@@ -15,6 +15,7 @@ export interface RentalSale {
   remittanceDate: string;
   remittanceMonth: string;
   remittanceDateAdded: string;
+  unitType: string;
 }
 
 export interface Team {

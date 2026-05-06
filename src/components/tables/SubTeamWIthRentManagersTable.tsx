@@ -15,33 +15,25 @@ import type { RentManager } from "../../types";
 import RentalSharingTable from "./RentalSharingTable";
 import { ChevronRight } from "@mui/icons-material";
 
-interface Team {
-  teamLeader: string;
-  team: string;
+interface SubTeam {
+  subTeamLeader: string;
+  subTeam: string;
   rentManager: number;
   rentManagerPro: number;
 }
 
-export default function TeamWithRentManagers({
-  qualifiedRentManagers,
+export default function SubTeamWithRentManagers({
   rentManagers,
+  qualifiedRentManagers,
   loading = true,
 }: {
-  qualifiedRentManagers: QualifiedRentManager[];
   rentManagers: RentManager[] | null;
+  qualifiedRentManagers: QualifiedRentManager[];
   loading: boolean;
 }) {
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [selectedSubTeam, setSelectedSubTeam] = useState<SubTeam | null>(null);
 
-  const leaderEmails = new Set(
-    (rentManagers ?? []).flatMap((rm) => [
-      rm.team.leaderEmail,
-      rm.subTeam.leaderEmail,
-    ]),
-  );
-
-  const agentOnlyQualifiedRentManagers = qualifiedRentManagers
-    .filter((qrm) => !leaderEmails.has(qrm.email))
+  const uniqueRentManagers = qualifiedRentManagers
     .sort((a, b) => {
       if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
         return -1;
@@ -50,17 +42,17 @@ export default function TeamWithRentManagers({
       return 0;
     })
     .filter(
-      (qrm, index, self) =>
-        index === self.findIndex((q) => q.email === qrm.email),
+      (rm, index, self) =>
+        index === self.findIndex((r) => r.email === rm.email),
     );
 
-  const groupedRentManagers: Team[] = Object.values(
-    agentOnlyQualifiedRentManagers.reduce<Record<string, Team>>((acc, rm) => {
-      const key = `${rm.team}`;
+  const groupedRentManagers: SubTeam[] = Object.values(
+    uniqueRentManagers.reduce<Record<string, SubTeam>>((acc, rm) => {
+      const key = `${rm.subTeam}`;
       if (!acc[key]) {
         acc[key] = {
-          teamLeader: rm.teamLeader,
-          team: rm.team,
+          subTeamLeader: rm.subTeamLeader,
+          subTeam: rm.subTeam,
           rentManager: 0,
           rentManagerPro: 0,
         };
@@ -69,25 +61,33 @@ export default function TeamWithRentManagers({
       if (rm.pin === "Rent Manager Pro") acc[key].rentManagerPro += 1;
       return acc;
     }, {}),
-  ).filter((team) => team.rentManager >= 5 || team.rentManagerPro >= 1);
+  ).filter(
+    (team) =>
+      (team.rentManager >= 5 || team.rentManagerPro >= 1) &&
+      team.subTeamLeader !== "",
+  );
 
-  const filteredQualifiedRentManagers = selectedTeam
-    ? qualifiedRentManagers.filter((qrm) => qrm.team === selectedTeam.team)
+  const filteredQualifiedRentManagers = selectedSubTeam
+    ? qualifiedRentManagers.filter(
+        (qrm) => qrm.subTeam === selectedSubTeam.subTeam,
+      )
     : [];
 
-  const filteredRentManagers = selectedTeam
-    ? (rentManagers ?? []).filter((rm) => rm.teamName === selectedTeam.team)
+  const filteredRentManagers = selectedSubTeam
+    ? (rentManagers ?? []).filter(
+        (rm) => rm.subTeamName === selectedSubTeam.subTeam,
+      )
     : [];
 
   const columns: GridColDef[] = [
     {
-      field: "teamLeader",
-      headerName: "Team Leader",
+      field: "subTeamLeader",
+      headerName: "Unit Manager",
       width: 350,
     },
     {
-      field: "team",
-      headerName: "Team",
+      field: "subTeam",
+      headerName: "Sub-Team",
       width: 300,
     },
     {
@@ -110,7 +110,7 @@ export default function TeamWithRentManagers({
         <Button
           size="small"
           variant="outlined"
-          onClick={() => setSelectedTeam(params.row as Team)}
+          onClick={() => setSelectedSubTeam(params.row as SubTeam)}
           sx={{ borderRadius: 0, textTransform: "none" }}
           endIcon={<ChevronRight />}
         >
@@ -124,13 +124,13 @@ export default function TeamWithRentManagers({
     <>
       <Box height="60vh" sx={{ p: 1 }}>
         <DataGridPro
-          label="Qualified Teams with Rent Managers/PROs"
+          label="Qualified Sub-Teams with Rent Managers/PROs"
           showCellVerticalBorder
           showColumnVerticalBorder
           showToolbar
           density="compact"
           rows={groupedRentManagers}
-          getRowId={(row) => `${row.team}`}
+          getRowId={(row) => `${row.subTeam}`}
           loading={loading}
           columns={columns}
           disableRowSelectionOnClick
@@ -139,8 +139,8 @@ export default function TeamWithRentManagers({
       </Box>
 
       <Dialog
-        open={selectedTeam !== null}
-        onClose={() => setSelectedTeam(null)}
+        open={selectedSubTeam !== null}
+        onClose={() => setSelectedSubTeam(null)}
         maxWidth="xl"
         fullWidth
       >
@@ -151,8 +151,9 @@ export default function TeamWithRentManagers({
             alignItems: "center",
           }}
         >
-          Rental Sharing — {selectedTeam?.teamLeader} ({selectedTeam?.team})
-          <IconButton onClick={() => setSelectedTeam(null)}>
+          Rental Sharing — {selectedSubTeam?.subTeamLeader} (
+          {selectedSubTeam?.subTeam})
+          <IconButton onClick={() => setSelectedSubTeam(null)}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>

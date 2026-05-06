@@ -14,6 +14,7 @@ import { Grid, Container, Box, Button } from "@mui/material";
 import OverviewPinCard from "../../components/cards/OverviewPinCard";
 import CertifiedRentManagersTable from "../../components/tables/CertifiedRentManagersTable";
 import TeamWithRentManagers from "../../components/tables/TeamWithRentManagersTable";
+import SubTeamWithRentManagers from "../../components/tables/SubTeamWIthRentManagersTable";
 import { ArrowBack } from "@mui/icons-material";
 import rm from "../../assets/rentmanager.png";
 import rph from "../../assets/rentph.png";
@@ -79,7 +80,11 @@ export interface PinningTrackerType {
   name: string;
   email: string;
   team: string;
+  teamLeader: string;
+  teamLeaderEmail: string;
   subTeam: string;
+  subTeamLeader: string;
+  subTeamLeaderEmail: string;
   area: string;
   pinningClusters: PinningCluster[];
 }
@@ -90,7 +95,11 @@ export interface QualifiedRentManager {
   name: string;
   email: string;
   team: string;
+  teamLeader: string;
+  teamLeaderEmail: string;
   subTeam: string;
+  subTeamLeader: string;
+  subTeamLeaderEmail: string;
   area: string;
   cluster: string;
   dateQualified?: string | null;
@@ -225,8 +234,12 @@ export default function PinningTracker() {
       id: rm.agentId,
       name: `${rm.firstName} ${rm.lastName}`,
       email: rm.email,
-      team: `${rm.teamName} (${rm.team.leader})`,
-      subTeam: `${rm.subTeamName} (${rm.subTeam.id === null ? "N/A" : rm.subTeam.leader})`,
+      team: rm.teamName,
+      teamLeader: rm.team.leader,
+      teamLeaderEmail: rm.team.leaderEmail,
+      subTeam: rm.subTeamName,
+      subTeamLeader: rm.subTeam.leader,
+      subTeamLeaderEmail: rm.subTeam.leaderEmail,
       area: rm.areaName,
       pinningClusters: [],
     };
@@ -348,7 +361,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamLeader: r.teamLeader,
+                teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamLeader: r.subTeamLeader,
+                subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
@@ -366,7 +383,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamLeader: r.teamLeader,
+                teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamLeader: r.subTeamLeader,
+                subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
@@ -384,7 +405,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamLeader: r.teamLeader,
+                teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamLeader: r.subTeamLeader,
+                subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,
                 area: r.area,
                 cluster: c.cluster,
@@ -419,6 +444,7 @@ export default function PinningTracker() {
 
   const RenderSelectedPin = ({ pin }: { pin: PinLabel }) => (
     <CertifiedRentManagersTable
+      loading={rentManagers === null}
       tableName={selectedPin}
       rentManagers={qualifiedRentManagers.filter(
         (q) => q.pin === pin || pin === "All",
@@ -514,7 +540,16 @@ export default function PinningTracker() {
           <RenderSelectedPin pin={selectedPin} />
         )}
 
-        <TeamWithRentManagers rentManagers={qualifiedRentManagers} />
+        <TeamWithRentManagers
+          loading={rentManagers === null}
+          rentManagers={rentManagers}
+          qualifiedRentManagers={qualifiedRentManagers}
+        />
+        <SubTeamWithRentManagers
+          loading={rentManagers === null}
+          rentManagers={rentManagers}
+          qualifiedRentManagers={qualifiedRentManagers}
+        />
 
         {/* <Grid container spacing={2}>
           {trackedPinningsRows.map((pt, k) => {

@@ -8,9 +8,11 @@ import type { QualifiedRentManager } from "../../pages/PinningTracker/Index";
 export default function CertifiedRentManagersTable({
   tableName,
   rentManagers,
+  loading = true,
 }: {
   tableName: string;
   rentManagers: QualifiedRentManager[];
+  loading: boolean;
 }) {
   const columns: GridColDef[] = [
     {
@@ -84,8 +86,8 @@ export default function CertifiedRentManagersTable({
           showColumnVerticalBorder
           showToolbar
           density="compact"
-          rows={rentManagers ?? []}
-          loading={rentManagers === null}
+          rows={rentManagers}
+          loading={loading}
           columns={columns}
           disableRowSelectionOnClick
           sx={{ border: "none" }}
