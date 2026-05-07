@@ -88,11 +88,9 @@ export default function RentalSharingTable({
     const result: RentalSharingRow[] = [];
 
     rentManagers.forEach((rm) => {
-      const isAgent =
-        rm.email !== rm.team.leaderEmail && rm.email !== rm.subTeam.leaderEmail;
-      if (!isAgent) return;
+      const isTeamLeader = rm.email === rm.team.leaderEmail;
+      if (isTeamLeader) return;
 
-      // Still use qualifiedRentManagers to determine subTeam qualification
       const qrm = qualifiedRentManagers
         .sort((a, b) => {
           if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
@@ -105,9 +103,12 @@ export default function RentalSharingTable({
 
       const subTeamKey = qrm
         ? `${qrm.team}__${qrm.subTeam}`
-        : `${rm.team.name}__${rm.subTeam.name}`; // fallback if not in qualifiedRentManagers
+        : `${rm.team.name}__${rm.subTeam.name}`;
 
       const isQualifiedSubTeam = qualifiedSubTeams.has(subTeamKey);
+      const isSubTeamLeader = rm.email === rm.subTeam.leaderEmail;
+
+      if (isSubTeamLeader && isQualifiedSubTeam) return; // only include subTeam leader sales if NOT qualified
 
       rm.rentalSales.forEach((sale) => {
         const base = sale.remittance / 2;
