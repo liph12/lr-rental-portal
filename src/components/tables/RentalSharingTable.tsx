@@ -85,49 +85,48 @@ export default function RentalSharingTable({
   }, [qualifiedRentManagers]);
 
   const rows = useMemo(() => {
-    const qualifiedEmails = new Set(
-      qualifiedRentManagers.map((qrm) => qrm.email),
-    );
     const result: RentalSharingRow[] = [];
 
-    rentManagers
-      .filter((rm) => qualifiedEmails.has(rm.email))
-      .forEach((rm) => {
-        const qrm = qualifiedRentManagers
-          .sort((a, b) => {
-            if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
-              return -1;
-            if (a.pin !== "Rent Manager Pro" && b.pin === "Rent Manager Pro")
-              return 1;
-            return 0;
-          })
-          .find((q) => q.email === rm.email);
-        const isAgent =
-          rm.email !== rm.team.leaderEmail &&
-          rm.email !== rm.subTeam.leaderEmail;
-        if (!qrm || !isAgent) return;
+    rentManagers.forEach((rm) => {
+      const isAgent =
+        rm.email !== rm.team.leaderEmail && rm.email !== rm.subTeam.leaderEmail;
+      if (!isAgent) return;
 
-        const subTeamKey = `${qrm.team}__${qrm.subTeam}`;
-        const isQualifiedSubTeam = qualifiedSubTeams.has(subTeamKey);
+      // Still use qualifiedRentManagers to determine subTeam qualification
+      const qrm = qualifiedRentManagers
+        .sort((a, b) => {
+          if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
+            return -1;
+          if (a.pin !== "Rent Manager Pro" && b.pin === "Rent Manager Pro")
+            return 1;
+          return 0;
+        })
+        .find((q) => q.email === rm.email);
 
-        rm.rentalSales.forEach((sale) => {
-          const base = sale.remittance / 2;
-          const split = base / 2;
+      const subTeamKey = qrm
+        ? `${qrm.team}__${qrm.subTeam}`
+        : `${rm.team.name}__${rm.subTeam.name}`; // fallback if not in qualifiedRentManagers
 
-          result.push({
-            id: `${rm.id}__${sale.id}`,
-            teamLeader: qrm.teamLeader,
-            subTeamLeader: qrm.subTeamLeader,
-            rentManager: `${rm.firstName} ${rm.lastName}`,
-            remittanceDate: sale.remittanceDate,
-            remittance: sale.remittance,
-            teamLeaderShare: isQualifiedSubTeam ? split : base,
-            subTeamLeaderShare: isQualifiedSubTeam ? split : 0,
-            rate: isQualifiedSubTeam ? "5%" : "10%",
-            unitType: sale.unitType,
-          });
+      const isQualifiedSubTeam = qualifiedSubTeams.has(subTeamKey);
+
+      rm.rentalSales.forEach((sale) => {
+        const base = sale.remittance / 2;
+        const split = base / 2;
+
+        result.push({
+          id: `${rm.id}__${sale.id}`,
+          teamLeader: rm.team.leader,
+          subTeamLeader: rm.subTeam.leader,
+          rentManager: `${rm.firstName} ${rm.lastName}`,
+          remittanceDate: sale.remittanceDate,
+          remittance: sale.remittance,
+          teamLeaderShare: isQualifiedSubTeam ? split : base,
+          subTeamLeaderShare: isQualifiedSubTeam ? split : 0,
+          rate: isQualifiedSubTeam ? "5%" : "10%",
+          unitType: sale.unitType,
         });
       });
+    });
 
     return result;
   }, [rentManagers, qualifiedRentManagers, qualifiedSubTeams]);
