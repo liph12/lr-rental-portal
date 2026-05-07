@@ -84,7 +84,7 @@ export default function RentalPerCitiesTable() {
   return (
     <Box height="60vh" sx={{ p: 1 }}>
       <DataGridPro
-        label="Rental Remittance (City)"
+        label="Rental Sales (City)"
         showCellVerticalBorder
         showColumnVerticalBorder
         showToolbar
