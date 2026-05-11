@@ -79,9 +79,11 @@ export interface PinningTrackerType {
   id: number;
   name: string;
   email: string;
+  teamId: number;
   team: string;
   teamLeader: string;
   teamLeaderEmail: string;
+  subTeamId: number;
   subTeam: string;
   subTeamLeader: string;
   subTeamLeaderEmail: string;
@@ -94,9 +96,11 @@ export interface QualifiedRentManager {
   rmId: number;
   name: string;
   email: string;
+  teamId: number;
   team: string;
   teamLeader: string;
   teamLeaderEmail: string;
+  subTeamId: number;
   subTeam: string;
   subTeamLeader: string;
   subTeamLeaderEmail: string;
@@ -234,9 +238,11 @@ export default function PinningTracker() {
       id: rm.agentId,
       name: `${rm.firstName} ${rm.lastName}`,
       email: rm.email,
+      teamId: rm.team.id,
       team: rm.teamName,
       teamLeader: rm.team.leader,
       teamLeaderEmail: rm.team.leaderEmail,
+      subTeamId: rm.subTeam.id,
       subTeam: rm.subTeamName,
       subTeamLeader: rm.subTeam.leader,
       subTeamLeaderEmail: rm.subTeam.leaderEmail,
@@ -361,9 +367,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamId: r.teamId,
                 teamLeader: r.teamLeader,
                 teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamId: r.subTeamId,
                 subTeamLeader: r.subTeamLeader,
                 subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,
@@ -383,9 +391,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamId: r.teamId,
                 teamLeader: r.teamLeader,
                 teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamId: r.subTeamId,
                 subTeamLeader: r.subTeamLeader,
                 subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,
@@ -405,9 +415,11 @@ export default function PinningTracker() {
                 name: r.name,
                 email: r.email,
                 rmId: r.id,
+                teamId: r.teamId,
                 teamLeader: r.teamLeader,
                 teamLeaderEmail: r.teamLeaderEmail,
                 team: r.team,
+                subTeamId: r.subTeamId,
                 subTeamLeader: r.subTeamLeader,
                 subTeamLeaderEmail: r.subTeamLeaderEmail,
                 subTeam: r.subTeam,

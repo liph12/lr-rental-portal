@@ -34,10 +34,7 @@ export default function TeamWithRentManagers({
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   const leaderEmails = new Set(
-    (rentManagers ?? []).flatMap((rm) => [
-      rm.team.leaderEmail,
-      rm.subTeam.leaderEmail,
-    ]),
+    (rentManagers ?? []).flatMap((rm) => [rm.team.leaderEmail]),
   );
 
   const agentOnlyQualifiedRentManagers = qualifiedRentManagers
@@ -56,7 +53,7 @@ export default function TeamWithRentManagers({
 
   const groupedRentManagers: Team[] = Object.values(
     agentOnlyQualifiedRentManagers.reduce<Record<string, Team>>((acc, rm) => {
-      const key = `${rm.team}`;
+      const key = rm.teamId;
       if (!acc[key]) {
         acc[key] = {
           teamLeader: rm.teamLeader,
@@ -65,8 +62,10 @@ export default function TeamWithRentManagers({
           rentManagerPro: 0,
         };
       }
+
       if (rm.pin === "Rent Manager") acc[key].rentManager += 1;
       if (rm.pin === "Rent Manager Pro") acc[key].rentManagerPro += 1;
+
       return acc;
     }, {}),
   ).filter((team) => team.rentManager >= 5 || team.rentManagerPro >= 1);

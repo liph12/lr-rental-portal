@@ -33,7 +33,12 @@ export default function SubTeamWithRentManagers({
 }) {
   const [selectedSubTeam, setSelectedSubTeam] = useState<SubTeam | null>(null);
 
+  const leaderEmails = new Set(
+    (rentManagers ?? []).flatMap((rm) => [rm.subTeam.leaderEmail]),
+  );
+
   const uniqueRentManagers = qualifiedRentManagers
+    .filter((qrm) => !leaderEmails.has(qrm.email))
     .sort((a, b) => {
       if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
         return -1;

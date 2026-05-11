@@ -10,12 +10,14 @@ import { useAppContext } from "./providers/AppProvider";
 import ErrorPage from "./pages/ErrorPage";
 import RentalReportForm from "./pages/RentalReportForm";
 import Submission from "./pages/Reports/Submission";
+import TestPage from "./pages/TestPage";
 
 function WebRoute() {
   const { user } = useAppContext();
 
   return (
     <Routes>
+      <Route path="/rentph-test" element={<TestPage />} />
       <Route path="/rental-report-form" element={<RentalReportForm />} />
       {user ? (
         <Route path="/" element={<AppLayout />}>
