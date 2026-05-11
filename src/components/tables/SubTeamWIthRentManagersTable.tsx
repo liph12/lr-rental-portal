@@ -166,6 +166,7 @@ export default function SubTeamWithRentManagers({
           <RentalSharingTable
             qualifiedRentManagers={filteredQualifiedRentManagers}
             rentManagers={filteredRentManagers}
+            isSubmTeam={true}
           />
         </DialogContent>
       </Dialog>

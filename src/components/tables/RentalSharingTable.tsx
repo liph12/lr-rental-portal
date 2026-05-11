@@ -18,20 +18,6 @@ interface RentalSharingRow {
   unitType: string;
 }
 
-// interface TLSummaryRow {
-//   id: string;
-//   teamLeader: string;
-//   totalRemittance: number;
-//   totalShare: number;
-// }
-
-// interface UMSummaryRow {
-//   id: string;
-//   subTeamLeader: string;
-//   totalRemittance: number;
-//   totalShare: number;
-// }
-
 interface SubTeamCount {
   rentManager: number;
   rentManagerPro: number;
@@ -43,9 +29,11 @@ const formatPHP = (value: number) =>
 export default function RentalSharingTable({
   qualifiedRentManagers,
   rentManagers,
+  isSubmTeam = false,
 }: {
   qualifiedRentManagers: QualifiedRentManager[];
   rentManagers: RentManager[];
+  isSubmTeam?: boolean;
 }) {
   const qualifiedSubTeams = useMemo(() => {
     const subTeamCounts: Record<string, SubTeamCount> = {};
@@ -105,10 +93,11 @@ export default function RentalSharingTable({
         ? `${qrm.team}__${qrm.subTeam}`
         : `${rm.team.name}__${rm.subTeam.name}`;
 
-      const isQualifiedSubTeam = qualifiedSubTeams.has(subTeamKey);
       const isSubTeamLeader = rm.email === rm.subTeam.leaderEmail;
+      const isQualifiedSubTeam =
+        qualifiedSubTeams.has(subTeamKey) && !isSubTeamLeader;
 
-      if (isSubTeamLeader && isQualifiedSubTeam) return; // only include subTeam leader sales if NOT qualified
+      if (isSubmTeam && isSubTeamLeader) return;
 
       rm.rentalSales.forEach((sale) => {
         const base = sale.remittance / 2;
@@ -131,41 +120,6 @@ export default function RentalSharingTable({
 
     return result;
   }, [rentManagers, qualifiedRentManagers, qualifiedSubTeams]);
-
-  //   const tlSummaryRows = useMemo<TLSummaryRow[]>(() => {
-  //     const map: Record<string, TLSummaryRow> = {};
-  //     rows.forEach((row) => {
-  //       if (!map[row.teamLeader]) {
-  //         map[row.teamLeader] = {
-  //           id: row.teamLeader,
-  //           teamLeader: row.teamLeader,
-  //           totalRemittance: 0,
-  //           totalShare: 0,
-  //         };
-  //       }
-  //       map[row.teamLeader].totalRemittance += row.remittance;
-  //       map[row.teamLeader].totalShare += row.teamLeaderShare;
-  //     });
-  //     return Object.values(map);
-  //   }, [rows]);
-
-  //   const umSummaryRows = useMemo<UMSummaryRow[]>(() => {
-  //     const map: Record<string, UMSummaryRow> = {};
-  //     rows.forEach((row) => {
-  //       if (!row.subTeamLeader || row.subTeamLeaderShare === 0) return;
-  //       if (!map[row.subTeamLeader]) {
-  //         map[row.subTeamLeader] = {
-  //           id: row.subTeamLeader,
-  //           subTeamLeader: row.subTeamLeader,
-  //           totalRemittance: 0,
-  //           totalShare: 0,
-  //         };
-  //       }
-  //       map[row.subTeamLeader].totalRemittance += row.remittance;
-  //       map[row.subTeamLeader].totalShare += row.subTeamLeaderShare;
-  //     });
-  //     return Object.values(map);
-  //   }, [rows]);
 
   const totals = useMemo(
     () =>
@@ -234,42 +188,6 @@ export default function RentalSharingTable({
     { field: "unitType", headerName: "Unit Type", width: 200 },
   ];
 
-  //   const tlColumns: GridColDef[] = [
-  //     { field: "teamLeader", headerName: "Team Leader", width: 250 },
-  //     {
-  //       field: "totalRemittance",
-  //       headerName: "Total Remittance",
-  //       width: 180,
-  //       type: "number",
-  //       valueFormatter: (value: number) => formatPHP(value),
-  //     },
-  //     {
-  //       field: "totalShare",
-  //       headerName: "Total TL Share",
-  //       width: 180,
-  //       type: "number",
-  //       valueFormatter: (value: number) => formatPHP(value),
-  //     },
-  //   ];
-
-  //   const umColumns: GridColDef[] = [
-  //     { field: "subTeamLeader", headerName: "Unit Manager", width: 250 },
-  //     {
-  //       field: "totalRemittance",
-  //       headerName: "Total Remittance",
-  //       width: 180,
-  //       type: "number",
-  //       valueFormatter: (value: number) => formatPHP(value),
-  //     },
-  //     {
-  //       field: "totalShare",
-  //       headerName: "Total UM Share",
-  //       width: 180,
-  //       type: "number",
-  //       valueFormatter: (value: number) => formatPHP(value),
-  //     },
-  //   ];
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Box height="70vh" sx={{ p: 1 }}>
@@ -303,45 +221,6 @@ export default function RentalSharingTable({
           }}
         />
       </Box>
-
-      {/* <Divider />
-      <Stack direction="row" spacing={2} sx={{ p: 2 }}>
-        <Box flex={1}>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-            Team Leader Summary
-          </Typography>
-          <DataGridPro
-            showCellVerticalBorder
-            showColumnVerticalBorder
-            showToolbar
-            density="compact"
-            rows={tlSummaryRows}
-            columns={tlColumns}
-            disableRowSelectionOnClick
-            hideFooter
-            sx={{ border: "none" }}
-          />
-        </Box>
-
-        <Divider orientation="vertical" flexItem />
-
-        <Box flex={1}>
-          <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-            Unit Manager Summary
-          </Typography>
-          <DataGridPro
-            showCellVerticalBorder
-            showColumnVerticalBorder
-            showToolbar
-            density="compact"
-            rows={umSummaryRows}
-            columns={umColumns}
-            disableRowSelectionOnClick
-            hideFooter
-            sx={{ border: "none" }}
-          />
-        </Box>
-      </Stack> */}
 
       <Divider />
 
