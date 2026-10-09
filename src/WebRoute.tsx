@@ -11,7 +11,6 @@ import ErrorPage from "./pages/ErrorPage";
 import RentalReportForm from "./pages/RentalReportForm";
 import Submission from "./pages/Reports/Submission";
 import TestPage from "./pages/TestPage";
-import Sharing from "./pages/Sharing/Index";
 
 function WebRoute() {
   const { user } = useAppContext();
@@ -25,7 +24,6 @@ function WebRoute() {
           <Route path="" element={<Overview />} />
           <Route path="reports" element={<Reports />} />
           <Route path="reports/:team_id" element={<TeamReport />} />
-          <Route path="rental-sharing" element={<Sharing />} />
           <Route
             path="reports/rental-submissions/:sub_id"
             element={<Submission />}

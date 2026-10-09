@@ -81,6 +81,7 @@ const ADMINS = [
   "libresphilip14@gmail.com",
   "delacalzadavien@gmail.com",
   "robertjonilaurente08@gmail.com",
+  "ethan.filipinohomes@gmail.com",
 ];
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
