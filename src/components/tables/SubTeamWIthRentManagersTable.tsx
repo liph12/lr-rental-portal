@@ -38,7 +38,9 @@ export default function SubTeamWithRentManagers({
   );
 
   const uniqueRentManagers = qualifiedRentManagers
-    .filter((qrm) => !leaderEmails.has(qrm.email))
+    .filter(
+      (qrm) => !leaderEmails.has(qrm.email) || qrm.pin === "Rent Manager Pro",
+    )
     .sort((a, b) => {
       if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
         return -1;

@@ -140,9 +140,6 @@ export default function AppDataFilter() {
     let query = enabledFilters
       ? `?from=${from}&to=${to}&area=${location?.id}`
       : "";
-    // let query = enabledFilters
-    //   ? `?from=${from}&to=${to}&area=${location?.id}&year=${dateYear}`
-    //   : "";
 
     if (enabledFilters) {
       setPropertyUnits(null);

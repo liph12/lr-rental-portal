@@ -80,6 +80,7 @@ const ADMINS = [
   "leuteriomay@gmail.com",
   "libresphilip14@gmail.com",
   "delacalzadavien@gmail.com",
+  "robertjonilaurente08@gmail.com",
 ];
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -107,12 +108,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const fromDate = allParams?.from ?? from;
   const toDate = allParams?.to ?? to;
-  // const _fromDate = allParams?.from
-  //   ? `${dateYear}${allParams.from.slice(4)}`
-  //   : `${dateYear}${from.slice(4)}`;
-  // const _toDate = allParams?.to
-  //   ? `${dateYear}${allParams.to.slice(4)}`
-  //   : `${dateYear}${to.slice(4)}`;
 
   const [dateRange, setDateRange] = useState<DateRange>({
     from: fromDate,

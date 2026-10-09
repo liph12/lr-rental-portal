@@ -23,7 +23,7 @@ import { Link, Outlet, useParams } from "react-router-dom";
 
 export type PinLabel = "Rent Manager" | "Rent PH" | "Rent Manager Pro" | "All";
 
-const THRESHOLDS = {
+export const THRESHOLDS = {
   RENT_MANAGER: 5000,
   RENT_PH: 20000,
   RENT_MANAGER_PRO: 50000,
@@ -219,8 +219,6 @@ export default function PinningTracker() {
       if (dateQualified) {
         const newSales = sales.filter((s) => s.remittanceDate > dateQualified);
 
-        console.log(newSales);
-
         clusters.push({
           remittanceDate: dateQualified,
           totalRemittance: offset,
@@ -273,7 +271,7 @@ export default function PinningTracker() {
         -> remittance date > qualified date
         -> push qualified sales
 
-      iterate until the start > threshold becomes false
+      iterate until the start <= threshold
 
       otherwise:
         -> get end > threshold

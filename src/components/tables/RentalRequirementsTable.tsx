@@ -21,10 +21,19 @@ interface Item {
   createdAt: string;
 }
 
+const CLUSTERS = {
+  "Jan-Mar": "January-March",
+  "Apr-Jun": "April-June",
+  "Jul-Sep": "July-September",
+} as const;
+
+type ClusterLabel = keyof typeof CLUSTERS;
+
 export default function RentalRequirementsTable() {
   const userData = getStoredUserData();
   const [submissions, setSubmissions] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cluster, setCluster] = useState<string>(CLUSTERS["Apr-Jun"]);
 
   const columns: GridColDef[] = [
     {
@@ -124,7 +133,7 @@ export default function RentalRequirementsTable() {
         setLoading(true);
 
         const response = await axios.get(
-          "https://api.leuteriorealty.com/lr/v2/public/api/rental-reports",
+          `https://api.leuteriorealty.com/lr/v2/public/api/rental-reports?cluster=${cluster}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -160,11 +169,25 @@ export default function RentalRequirementsTable() {
     };
 
     fetchSubmissionsAsync();
-  }, []);
+  }, [cluster]);
 
   return (
     <>
       <Box height="60vh" sx={{ p: 1 }}>
+        <Box sx={{ my: 1, display: "flex", gap: 1 }}>
+          {(Object.keys(CLUSTERS) as ClusterLabel[]).map((label) => (
+            <Button
+              key={label}
+              variant={cluster === CLUSTERS[label] ? "contained" : "outlined"}
+              sx={{ borderRadius: 0 }}
+              size="small"
+              disableElevation
+              onClick={() => setCluster(CLUSTERS[label])}
+            >
+              {label}
+            </Button>
+          ))}
+        </Box>
         <DataGridPro
           label="Rental Requirements Submissions"
           showCellVerticalBorder

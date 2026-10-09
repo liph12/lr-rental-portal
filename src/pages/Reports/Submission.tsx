@@ -85,7 +85,7 @@ interface SubmissionData {
 }
 
 // --- Helpers ---
-const MONTHS = ["January", "February", "March"];
+const MONTHS = ["July", "August", "September"];
 
 const statusColor = (
   status: string,
