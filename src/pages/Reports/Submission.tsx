@@ -85,7 +85,17 @@ interface SubmissionData {
 }
 
 // --- Helpers ---
-const MONTHS = ["July", "August", "September"];
+const MONTHS = {
+  "Jan-Mar": ["January", "February", "March"],
+  "Apr-Jun": ["April", "May", "June"],
+  "Jul-Sep": ["July", "August", "September"],
+};
+
+const getClusterMonths = () => {
+  const clusterKey = localStorage.getItem("cluster_key") ?? "Jul-Sep";
+
+  return MONTHS[clusterKey as keyof typeof MONTHS] ?? MONTHS["Jul-Sep"];
+};
 
 const statusColor = (
   status: string,
@@ -220,9 +230,11 @@ function InfoRow({ icon, label }: { icon: React.ReactNode; label: string }) {
 }
 
 function ActivitiesByMonth({ activities }: { activities: Activity[] }) {
+  const MONTHS_ARRAY = getClusterMonths();
+
   return (
     <Stack spacing={2}>
-      {MONTHS.map((month) => {
+      {MONTHS_ARRAY.map((month) => {
         const items = activities.filter((a) => a.month === month);
         if (!items.length) return null;
         return (
@@ -291,9 +303,11 @@ function ActivitiesByMonth({ activities }: { activities: Activity[] }) {
 }
 
 function SocialByMonth({ activities }: { activities: SocialMediaActivity[] }) {
+  const MONTHS_ARRAY = getClusterMonths();
+
   return (
     <Stack spacing={2}>
-      {MONTHS.map((month) => {
+      {MONTHS_ARRAY.map((month) => {
         const items = activities.filter((a) => a.month === month);
         if (!items.length) return null;
         return (

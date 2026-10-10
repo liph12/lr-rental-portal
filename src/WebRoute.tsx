@@ -11,9 +11,10 @@ import ErrorPage from "./pages/ErrorPage";
 import RentalReportForm from "./pages/RentalReportForm";
 import Submission from "./pages/Reports/Submission";
 import TestPage from "./pages/TestPage";
+import RentalSharing from "./pages/RentalSharing/Index";
 
 function WebRoute() {
-  const { user } = useAppContext();
+  const { user, isAdmin } = useAppContext();
 
   return (
     <Routes>
@@ -31,6 +32,9 @@ function WebRoute() {
           <Route path="pinning-tracker" element={<PinningTracker />}>
             <Route path=":rm_id" element={<ClustersProgress />} />
           </Route>
+          {isAdmin && (
+            <Route path="rental-sharing" element={<RentalSharing />} />
+          )}
         </Route>
       ) : (
         <Route path="/login" element={<Login />} />

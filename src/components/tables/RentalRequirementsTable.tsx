@@ -21,7 +21,7 @@ interface Item {
   createdAt: string;
 }
 
-const CLUSTERS = {
+export const CLUSTERS = {
   "Jan-Mar": "January-March",
   "Apr-Jun": "April-June",
   "Jul-Sep": "July-September",
@@ -33,7 +33,7 @@ export default function RentalRequirementsTable() {
   const userData = getStoredUserData();
   const [submissions, setSubmissions] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
-  const [cluster, setCluster] = useState<string>(CLUSTERS["Apr-Jun"]);
+  const [cluster, setCluster] = useState<string>(CLUSTERS["Jul-Sep"]);
 
   const columns: GridColDef[] = [
     {
@@ -127,6 +127,12 @@ export default function RentalRequirementsTable() {
     },
   ];
 
+  const handleSetCluster = (label: ClusterLabel) => {
+    setCluster(CLUSTERS[label]);
+
+    localStorage.setItem("cluster_key", label);
+  };
+
   useEffect(() => {
     const fetchSubmissionsAsync = async () => {
       try {
@@ -173,8 +179,11 @@ export default function RentalRequirementsTable() {
 
   return (
     <>
-      <Box height="60vh" sx={{ p: 1 }}>
-        <Box sx={{ my: 1, display: "flex", gap: 1 }}>
+      <Box
+        height="60vh"
+        sx={{ p: 1, display: "flex", flexDirection: "column" }}
+      >
+        <Box sx={{ my: 1, display: "flex", gap: 1, flexShrink: 0 }}>
           {(Object.keys(CLUSTERS) as ClusterLabel[]).map((label) => (
             <Button
               key={label}
@@ -182,7 +191,7 @@ export default function RentalRequirementsTable() {
               sx={{ borderRadius: 0 }}
               size="small"
               disableElevation
-              onClick={() => setCluster(CLUSTERS[label])}
+              onClick={() => handleSetCluster(label)}
             >
               {label}
             </Button>
@@ -198,7 +207,7 @@ export default function RentalRequirementsTable() {
           loading={loading}
           columns={columns}
           disableRowSelectionOnClick
-          sx={{ border: "none" }}
+          sx={{ border: "none", flex: 1, minHeight: 0 }}
         />
       </Box>
     </>
