@@ -6,6 +6,7 @@ import Grid4x4Icon from "@mui/icons-material/Grid4x4";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { useEffect, useState } from "react";
+import useQualifiedRentManagers from "../../hooks/useQualifiedRentManagers";
 
 export type PropertyArea = {
   floorArea: 0;
@@ -22,9 +23,12 @@ export default function OverviewInfoCardGroup() {
     (total, sale) => total + sale.value,
     0
   );
-  const totalCertifiedRentManagers = rentManagers?.filter(
-    (rm) => rm.hasRemittanceLevel
-  ).length;
+  const { qualifiedRentManagers } = useQualifiedRentManagers();
+  const totalCertifiedRentManagers = new Set(
+    qualifiedRentManagers
+      .filter((q) => q.pin === "Rent Manager")
+      .map((q) => q.rmId),
+  ).size;
 
   useEffect(() => {
     if (propertyUnits) {
