@@ -8,9 +8,14 @@ import { ArrowBack } from "@mui/icons-material";
 import rm from "../../assets/rentmanager.png";
 import rph from "../../assets/rentph.png";
 import rmpro from "../../assets/rmpro.png";
+import rmproElite from "../../assets/rmpro-elite.png";
 import { Link, Outlet, useParams } from "react-router-dom";
 
-export type PinLabel = "Rent Manager" | "Rent PH" | "Rent Manager Pro" | "All";
+export type PinLabel =
+  "Rent Manager" | "Rent PH" | "Rent Manager Pro" | "RMPro Elite" | "All";
+
+// Number of RM Pro cycles (bi-monthly clusters) needed to reach RMPro Elite
+export const ELITE_MIN_CYCLES = 6;
 
 export const THRESHOLDS = {
   RENT_MANAGER: 5000,
@@ -22,12 +27,14 @@ type Pins = {
   RENT_MANAGER: PinLabel;
   RENT_PH: PinLabel;
   RENT_MANAGER_PRO: PinLabel;
+  RMPRO_ELITE: PinLabel;
 };
 
 const PINS: Pins = {
   RENT_MANAGER: "Rent Manager",
   RENT_PH: "Rent PH",
   RENT_MANAGER_PRO: "Rent Manager Pro",
+  RMPRO_ELITE: "RMPro Elite",
 };
 
 export interface SalesCluster {
@@ -101,8 +108,13 @@ export interface QualifiedRentManager {
 
 export default function PinningTracker() {
   const { rm_id } = useParams();
-  const { rentManagers, trackedRows, qualifiedRentManagers } =
-    useQualifiedRentManagers();
+  const {
+    rentManagers,
+    trackedRows,
+    qualifiedRentManagers,
+    eliteRentManagers,
+  } = useQualifiedRentManagers();
+  const allPins = [...qualifiedRentManagers, ...eliteRentManagers];
   const [selectedPin, setSelectedPin] = useState<PinLabel>("Rent Manager");
   const [selectedTrackedPinningRow, setSelectedTrackedPinningRow] =
     useState<PinningTrackerType | null>(null);
@@ -120,7 +132,6 @@ export default function PinningTracker() {
     }
   }, [trackedRows, rm_id]);
 
-
   const toggleDataOutput = () =>
     setSelectedPin((prev) => (prev === "All" ? "Rent Manager" : "All"));
 
@@ -128,9 +139,7 @@ export default function PinningTracker() {
     <CertifiedRentManagersTable
       loading={rentManagers === null}
       tableName={selectedPin}
-      rentManagers={qualifiedRentManagers.filter(
-        (q) => q.pin === pin || pin === "All",
-      )}
+      rentManagers={allPins.filter((q) => q.pin === pin || pin === "All")}
     />
   );
 
@@ -139,7 +148,7 @@ export default function PinningTracker() {
       <Box sx={{ mt: 2, mb: 10 }}>
         <Box sx={{ mb: 2 }}>
           <Grid container spacing={2}>
-            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
+            <Grid size={{ lg: 3, md: 6, xs: 12 }}>
               <Box onClick={() => setSelectedPin(PINS.RENT_MANAGER)}>
                 <OverviewPinCard
                   selected={selectedPin === PINS.RENT_MANAGER}
@@ -155,7 +164,7 @@ export default function PinningTracker() {
                 />
               </Box>
             </Grid>
-            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
+            <Grid size={{ lg: 3, md: 6, xs: 12 }}>
               <Box onClick={() => setSelectedPin(PINS.RENT_PH)}>
                 <OverviewPinCard
                   selected={selectedPin === PINS.RENT_PH}
@@ -171,7 +180,7 @@ export default function PinningTracker() {
                 />
               </Box>
             </Grid>
-            <Grid size={{ lg: 4, md: 6, xs: 12 }}>
+            <Grid size={{ lg: 3, md: 6, xs: 12 }}>
               <Box onClick={() => setSelectedPin(PINS.RENT_MANAGER_PRO)}>
                 <OverviewPinCard
                   selected={selectedPin === PINS.RENT_MANAGER_PRO}
@@ -183,6 +192,19 @@ export default function PinningTracker() {
                       (q) => q.pin === PINS.RENT_MANAGER_PRO,
                     ).length
                   }
+                  loading={rentManagers === null}
+                />
+              </Box>
+            </Grid>
+            <Grid size={{ lg: 3, md: 6, xs: 12 }}>
+              <Box onClick={() => setSelectedPin(PINS.RMPRO_ELITE)}>
+                <OverviewPinCard
+                  selected={selectedPin === PINS.RMPRO_ELITE}
+                  img={rmproElite}
+                  imgSize={90}
+                  subTitle="Number of Pins"
+                  title={PINS.RMPRO_ELITE}
+                  value={eliteRentManagers.length}
                   loading={rentManagers === null}
                 />
               </Box>

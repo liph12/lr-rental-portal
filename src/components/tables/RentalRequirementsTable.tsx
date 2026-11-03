@@ -129,8 +129,6 @@ export default function RentalRequirementsTable() {
 
   const handleSetCluster = (label: ClusterLabel) => {
     setCluster(CLUSTERS[label]);
-
-    localStorage.setItem("cluster_key", label);
   };
 
   useEffect(() => {

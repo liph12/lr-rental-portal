@@ -16,6 +16,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useState, useEffect } from "react";
+import DateRangePicker from "./DateRangePicker";
 import { LOCATIONS } from "../app-data";
 import { appRoutes, staffAppRoutes } from "../app-data";
 import { hasRemittanceLevel, isValidDateRange } from "../helpers";
@@ -75,18 +76,6 @@ export default function AppDataFilter() {
   const [enabledFilters, setEnabledFilters] = useState<boolean>(false);
   const [validDateRange, setValidDateRange] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const onChangeDateRange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const k = e.target.name;
-    const v = e.target.value;
-
-    // const dateValue = `${dateYear}${v.slice(4)}`;
-
-    setDateRange((prev) => ({
-      ...prev,
-      [k]: v,
-    }));
-  };
 
   const createTeamStatistics = (rentManagers: RentManager[] | null) => {
     if (rentManagers) {
@@ -300,22 +289,8 @@ export default function AppDataFilter() {
             />
           </Box> */}
           <Box>
-            <FormHelperText>Date From</FormHelperText>
-            <StyledTextField
-              type="date"
-              name="from"
-              value={dateRange.from ?? ""}
-              handleChange={onChangeDateRange}
-            />
-          </Box>
-          <Box>
-            <FormHelperText>Date To</FormHelperText>
-            <StyledTextField
-              type="date"
-              name="to"
-              value={dateRange.to ?? ""}
-              handleChange={onChangeDateRange}
-            />
+            <FormHelperText>Date Range</FormHelperText>
+            <DateRangePicker value={dateRange} onChange={setDateRange} />
           </Box>
           {!validDateRange && (
             <FormHelperText sx={{ color: "error.main" }}>

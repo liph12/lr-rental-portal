@@ -85,17 +85,34 @@ interface SubmissionData {
 }
 
 // --- Helpers ---
-const MONTHS = {
-  "Jan-Mar": ["January", "February", "March"],
-  "Apr-Jun": ["April", "May", "June"],
-  "Jul-Sep": ["July", "August", "September"],
-};
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
-const getClusterMonths = () => {
-  const clusterKey = localStorage.getItem("cluster_key") ?? "Jul-Sep";
+const groupByMonth = <T extends { month: string }>(items: T[]) =>
+  [...new Set(items.map((i) => i.month))]
+    .sort((a, b) => MONTHS.indexOf(a) - MONTHS.indexOf(b))
+    .map((month) => ({
+      month,
+      items: items.filter((i) => i.month === month),
+    }));
 
-  return MONTHS[clusterKey as keyof typeof MONTHS] ?? MONTHS["Jul-Sep"];
-};
+const isDocumentFile = (url: string) =>
+  /\.(pdf|docx?|xlsx?|pptx?|csv|txt)(\?.*)?$/i.test(url);
+
+const getFileName = (url: string) =>
+  decodeURIComponent(url.split("?")[0].split("/").pop() ?? url);
 
 const statusColor = (
   status: string,
@@ -162,10 +179,28 @@ function PhotoStrip({ urls, size = 56 }: { urls: string[]; size?: number }) {
 
   if (!urls.length) return null;
 
+  const images = urls.filter((url) => !isDocumentFile(url));
+  const documents = urls.filter(isDocumentFile);
+
   return (
     <>
       <Stack direction="row" flexWrap="wrap" gap={0.75} mt={0.5}>
-        {urls.map((url, i) => (
+        {documents.map((url, i) => (
+          <Chip
+            key={`doc-${i}`}
+            component="a"
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            clickable
+            icon={<Article sx={{ fontSize: 16 }} />}
+            label={getFileName(url)}
+            size="small"
+            variant="outlined"
+            sx={{ maxWidth: "100%" }}
+          />
+        ))}
+        {images.map((url, i) => (
           <Box
             key={i}
             component="img"
@@ -216,27 +251,39 @@ function SectionHeader({
   );
 }
 
+function EmptyText({ text }: { text: string }) {
+  return (
+    <Typography variant="body2" color="text.disabled" fontStyle="italic">
+      {text}
+    </Typography>
+  );
+}
+
 function InfoRow({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <Box color="text.secondary" display="flex">
+    <Stack direction="row" spacing={1} alignItems="flex-start">
+      <Box color="text.secondary" display="flex" mt={0.25}>
         {icon}
       </Box>
-      <Typography variant="body2" color="text.secondary">
-        {label}
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ overflowWrap: "anywhere" }}
+      >
+        {label || "—"}
       </Typography>
     </Stack>
   );
 }
 
 function ActivitiesByMonth({ activities }: { activities: Activity[] }) {
-  const MONTHS_ARRAY = getClusterMonths();
+  if (!activities.length) {
+    return <EmptyText text="No participated activities submitted." />;
+  }
 
   return (
     <Stack spacing={2}>
-      {MONTHS_ARRAY.map((month) => {
-        const items = activities.filter((a) => a.month === month);
-        if (!items.length) return null;
+      {groupByMonth(activities).map(({ month, items }) => {
         return (
           <Box key={month}>
             <Typography
@@ -258,23 +305,29 @@ function ActivitiesByMonth({ activities }: { activities: Activity[] }) {
                     sx={{ py: 1.5, px: 2, "&:last-child": { pb: 1.5 } }}
                   >
                     <Stack
-                      direction="row"
+                      direction={{ xs: "column", sm: "row" }}
                       justifyContent="space-between"
                       alignItems="flex-start"
+                      gap={1}
                     >
-                      <Box flex={1} mr={1}>
+                      <Box flex={1} minWidth={0}>
                         <Typography variant="body2" fontWeight={600}>
                           {item.title}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          component="p"
+                          sx={{ overflowWrap: "anywhere" }}
+                        >
                           {item.description}
                         </Typography>
                         <PhotoStrip urls={item.documents} size={52} />
                       </Box>
                       <Stack
-                        direction="column"
+                        direction={{ xs: "row", sm: "column" }}
                         spacing={0.5}
-                        alignItems="flex-end"
+                        alignItems={{ xs: "flex-start", sm: "flex-end" }}
                       >
                         <Chip
                           icon={<CalendarMonth sx={{ fontSize: 14 }} />}
@@ -303,13 +356,13 @@ function ActivitiesByMonth({ activities }: { activities: Activity[] }) {
 }
 
 function SocialByMonth({ activities }: { activities: SocialMediaActivity[] }) {
-  const MONTHS_ARRAY = getClusterMonths();
+  if (!activities.length) {
+    return <EmptyText text="No social media activities submitted." />;
+  }
 
   return (
     <Stack spacing={2}>
-      {MONTHS_ARRAY.map((month) => {
-        const items = activities.filter((a) => a.month === month);
-        if (!items.length) return null;
+      {groupByMonth(activities).map(({ month, items }) => {
         return (
           <Box key={month}>
             <Typography
@@ -331,11 +384,12 @@ function SocialByMonth({ activities }: { activities: SocialMediaActivity[] }) {
                     sx={{ py: 1.5, px: 2, "&:last-child": { pb: 1.5 } }}
                   >
                     <Stack
-                      direction="row"
+                      direction={{ xs: "column-reverse", sm: "row" }}
                       justifyContent="space-between"
                       alignItems="flex-start"
+                      gap={1}
                     >
-                      <Box flex={1} mr={1}>
+                      <Box flex={1} minWidth={0}>
                         <PhotoStrip urls={item.documents} size={52} />
                       </Box>
                       <Chip
@@ -425,7 +479,7 @@ export default function Submission() {
   } = data;
 
   return (
-    <Box maxWidth={960} mx="auto" p={3} mb={10}>
+    <Box maxWidth={960} mx="auto" p={{ xs: 2, md: 3 }} mb={10}>
       {/* Header */}
       <Card sx={{ mb: 3, bgcolor: "primary.main", color: "white" }}>
         <CardContent>
@@ -433,6 +487,8 @@ export default function Submission() {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
+            flexWrap="wrap"
+            gap={1}
           >
             <Box>
               <Typography variant="h5" fontWeight={700}>
@@ -494,6 +550,9 @@ export default function Submission() {
             <CardContent>
               <SectionHeader title="Office Secretary" color="warning" />
               <Stack spacing={1} mt={1}>
+                {!office_secretary.secretaries.length && (
+                  <EmptyText text="No secretaries listed." />
+                )}
                 {office_secretary.secretaries.map((s) => (
                   <Box key={s.email}>
                     <InfoRow
@@ -518,7 +577,11 @@ export default function Submission() {
                 >
                   OFFICE PHOTOS
                 </Typography>
-                <PhotoStrip urls={office_secretary.office_photos} />
+                {office_secretary.office_photos.length ? (
+                  <PhotoStrip urls={office_secretary.office_photos} />
+                ) : (
+                  <EmptyText text="No office photos uploaded." />
+                )}
                 <Typography
                   variant="caption"
                   color="warning.main"
@@ -526,7 +589,11 @@ export default function Submission() {
                 >
                   SECRETARIAL DOCUMENTS
                 </Typography>
-                <PhotoStrip urls={office_secretary.secretarial_documents} />
+                {office_secretary.secretarial_documents.length ? (
+                  <PhotoStrip urls={office_secretary.secretarial_documents} />
+                ) : (
+                  <EmptyText text="No secretarial documents uploaded." />
+                )}
               </Stack>
             </CardContent>
           </Card>
@@ -538,6 +605,9 @@ export default function Submission() {
             <CardContent>
               <SectionHeader title="Rent Managers" color="primary" />
               <Stack direction="row" flexWrap="wrap" gap={1} mt={1}>
+                {!rent_managers.length && (
+                  <EmptyText text="No rent managers listed." />
+                )}
                 {rent_managers.map((rm, i) => (
                   <Chip
                     key={i}
@@ -545,19 +615,32 @@ export default function Submission() {
                     color="primary"
                     variant="outlined"
                     size="small"
+                    sx={{
+                      height: "auto",
+                      maxWidth: "100%",
+                      "& .MuiChip-label": { whiteSpace: "normal", py: 0.5 },
+                    }}
                   />
                 ))}
               </Stack>
               <Box mt={1}>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ overflowWrap: "anywhere" }}
+                >
                   Rent PH Account:{" "}
-                  <a
-                    href={data.rent_ph_account}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {data.rent_ph_account}
-                  </a>
+                  {data.rent_ph_account ? (
+                    <a
+                      href={data.rent_ph_account}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {data.rent_ph_account}
+                    </a>
+                  ) : (
+                    "—"
+                  )}
                 </Typography>
               </Box>
             </CardContent>

@@ -64,7 +64,10 @@ export default function CertifiedRentManagersTable({
           <Button
             variant="outlined"
             color={
-              params.row.pin === "Rent Manager Pro" ? "warning" : "primary"
+              params.row.pin === "Rent Manager Pro" ||
+              params.row.pin === "RMPro Elite"
+                ? "warning"
+                : "primary"
             }
             size="small"
             endIcon={<ChevronRightRounded />}

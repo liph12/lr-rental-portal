@@ -1,5 +1,13 @@
-import { useMemo } from "react";
-import { Box, Chip, Divider, Stack, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { DataGridPro } from "@mui/x-data-grid-pro";
 import type { GridColDef } from "@mui/x-data-grid";
 import { type QualifiedRentManager } from "../../pages/PinningTracker/Index";
@@ -35,6 +43,9 @@ export default function RentalSharingTable({
   rentManagers: RentManager[];
   isSubmTeam?: boolean;
 }) {
+  // Only sales added on or before this date (YYYY-MM-DD) are shared; "" = all
+  const [cutOff, setCutOff] = useState("");
+
   const qualifiedSubTeams = useMemo(() => {
     const subTeamCounts: Record<string, SubTeamCount> = {};
 
@@ -100,6 +111,8 @@ export default function RentalSharingTable({
       if (isSubmTeam && isSubTeamLeader) return;
 
       rm.rentalSales.forEach((sale) => {
+        if (cutOff && sale.remittanceDateAdded.slice(0, 10) > cutOff) return;
+
         const base = sale.remittance / 2;
         const split = base / 2;
 
@@ -119,7 +132,7 @@ export default function RentalSharingTable({
     });
 
     return result;
-  }, [rentManagers, qualifiedRentManagers, qualifiedSubTeams]);
+  }, [rentManagers, qualifiedRentManagers, qualifiedSubTeams, cutOff]);
 
   const totals = useMemo(
     () =>
@@ -190,6 +203,26 @@ export default function RentalSharingTable({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ p: 2 }}>
+        <TextField
+          type="date"
+          size="small"
+          label="Cut-off (date added on or before)"
+          value={cutOff}
+          onChange={(e) => setCutOff(e.target.value)}
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ minWidth: 280 }}
+        />
+        {cutOff && (
+          <Button
+            size="small"
+            onClick={() => setCutOff("")}
+            sx={{ textTransform: "none" }}
+          >
+            Clear
+          </Button>
+        )}
+      </Stack>
       <Box height="70vh" sx={{ p: 1 }}>
         <DataGridPro
           showCellVerticalBorder

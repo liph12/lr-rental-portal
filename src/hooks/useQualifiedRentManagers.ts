@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../providers/AppProvider";
-import {
-  generateBiMonthlyClusters,
-  getCurrentDateFormatted,
-} from "../helpers";
+import { generateBiMonthlyClusters, getCurrentDateFormatted } from "../helpers";
 import type {
   RentManager,
   RentalSale,
@@ -11,6 +8,7 @@ import type {
   ClusteredRange,
 } from "../types";
 import {
+  ELITE_MIN_CYCLES,
   THRESHOLDS,
   type PinningTrackerType,
   type QualifiedRentManager,
@@ -26,7 +24,9 @@ export default function useQualifiedRentManagers() {
   const [qualifiedRentManagers, setQualifiedRentManagers] = useState<
     QualifiedRentManager[]
   >([]);
-
+  const [eliteRentManagers, setEliteRentManagers] = useState<
+    QualifiedRentManager[]
+  >([]);
 
   const filteredByReservationDate = (
     s: RentalSale,
@@ -337,10 +337,48 @@ export default function useQualifiedRentManagers() {
         });
       });
 
+      // RMPro Elite: RM Pro in at least ELITE_MIN_CYCLES clusters. Kept apart
+      // from qRm so the rental sharing tables still see these people as RM Pro.
+      const elite: QualifiedRentManager[] = [];
+
+      trackedRows.forEach((r) => {
+        const proClusters = r.pinningClusters.filter(
+          (c) => c.rentManagerPro === BASE,
+        );
+
+        if (proClusters.length >= ELITE_MIN_CYCLES) {
+          elite.push({
+            id: qRm.length + elite.length + 1,
+            name: r.name,
+            email: r.email,
+            rmId: r.id,
+            teamId: r.teamId,
+            teamLeader: r.teamLeader,
+            teamLeaderEmail: r.teamLeaderEmail,
+            team: r.team,
+            subTeamId: r.subTeamId,
+            subTeamLeader: r.subTeamLeader,
+            subTeamLeaderEmail: r.subTeamLeaderEmail,
+            subTeam: r.subTeam,
+            area: r.area,
+            cluster: `${proClusters.length} cycles`,
+            dateQualified:
+              proClusters[ELITE_MIN_CYCLES - 1].rentManagerProDateQualified,
+            pin: "RMPro Elite",
+          });
+        }
+      });
+
       setTrackedRows(trackedRows);
       setQualifiedRentManagers(qRm);
+      setEliteRentManagers(elite);
     }
   }, [rentManagers]);
 
-  return { rentManagers, trackedRows, qualifiedRentManagers };
+  return {
+    rentManagers,
+    trackedRows,
+    qualifiedRentManagers,
+    eliteRentManagers,
+  };
 }
