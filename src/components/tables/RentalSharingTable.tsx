@@ -51,9 +51,9 @@ export default function RentalSharingTable({
 
     const uniqueQualifiedRentManagers = qualifiedRentManagers
       .sort((a, b) => {
-        if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
+        if (a.pin === "RMPro" && b.pin !== "RMPro")
           return -1;
-        if (a.pin !== "Rent Manager Pro" && b.pin === "Rent Manager Pro")
+        if (a.pin !== "RMPro" && b.pin === "RMPro")
           return 1;
         return 0;
       })
@@ -69,7 +69,7 @@ export default function RentalSharingTable({
         if (!subTeamCounts[key])
           subTeamCounts[key] = { rentManager: 0, rentManagerPro: 0 };
         if (rm.pin === "Rent Manager") subTeamCounts[key].rentManager += 1;
-        if (rm.pin === "Rent Manager Pro")
+        if (rm.pin === "RMPro")
           subTeamCounts[key].rentManagerPro += 1;
       }
     });
@@ -92,9 +92,9 @@ export default function RentalSharingTable({
 
       const qrm = qualifiedRentManagers
         .sort((a, b) => {
-          if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
+          if (a.pin === "RMPro" && b.pin !== "RMPro")
             return -1;
-          if (a.pin !== "Rent Manager Pro" && b.pin === "Rent Manager Pro")
+          if (a.pin !== "RMPro" && b.pin === "RMPro")
             return 1;
           return 0;
         })

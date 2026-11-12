@@ -40,9 +40,9 @@ export default function TeamWithRentManagers({
   const agentOnlyQualifiedRentManagers = qualifiedRentManagers
     .filter((qrm) => !leaderEmails.has(qrm.email))
     .sort((a, b) => {
-      if (a.pin === "Rent Manager Pro" && b.pin !== "Rent Manager Pro")
+      if (a.pin === "RMPro" && b.pin !== "RMPro")
         return -1;
-      if (a.pin !== "Rent Manager Pro" && b.pin === "Rent Manager Pro")
+      if (a.pin !== "RMPro" && b.pin === "RMPro")
         return 1;
       return 0;
     })
@@ -64,7 +64,7 @@ export default function TeamWithRentManagers({
       }
 
       if (rm.pin === "Rent Manager") acc[key].rentManager += 1;
-      if (rm.pin === "Rent Manager Pro") acc[key].rentManagerPro += 1;
+      if (rm.pin === "RMPro") acc[key].rentManagerPro += 1;
 
       return acc;
     }, {}),

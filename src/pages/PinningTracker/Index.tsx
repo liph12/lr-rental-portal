@@ -12,9 +12,10 @@ import rmproElite from "../../assets/rmpro-elite.png";
 import { Link, Outlet, useParams } from "react-router-dom";
 
 export type PinLabel =
-  "Rent Manager" | "Rent PH" | "Rent Manager Pro" | "RMPro Elite" | "All";
+  "Rent Manager" | "Rent PH" | "RMPro" | "RMPro Elite" | "All";
 
-// Number of RM Pro cycles (bi-monthly clusters) needed to reach RMPro Elite
+// A cycle is Rent Manager -> Rent PH -> RMPro, then it restarts
+// at Rent Manager. RMPro Elite needs this many completed cycles.
 export const ELITE_MIN_CYCLES = 6;
 
 export const THRESHOLDS = {
@@ -33,7 +34,7 @@ type Pins = {
 const PINS: Pins = {
   RENT_MANAGER: "Rent Manager",
   RENT_PH: "Rent PH",
-  RENT_MANAGER_PRO: "Rent Manager Pro",
+  RENT_MANAGER_PRO: "RMPro",
   RMPRO_ELITE: "RMPro Elite",
 };
 
@@ -53,6 +54,22 @@ export interface RemittanceCluster {
   remittanceDate: string | null;
 }
 
+export interface EarnedPin {
+  dateQualified: string;
+  // Sales (by remittanceDate) that earned this pin, ending with the sale that
+  // reached the threshold
+  sales: RentalSale[];
+  // Part of the first sale already used up by the previous pin of the cluster
+  carriedIn: number;
+}
+
+export interface EarnedSales {
+  cluster: string;
+  threshold: number;
+  sales: RentalSale[];
+  carriedIn: number;
+}
+
 export interface PinningCluster {
   cluster: string;
   startTotal: number;
@@ -63,12 +80,15 @@ export interface PinningCluster {
   rentManagerCluster: RemittanceCluster[];
   rentManager: number;
   rentManagerDateQualified?: string | null;
+  rentManagerPins: EarnedPin[];
   rentPhCluster: RemittanceCluster[];
   rentPh: number;
   rentPhDateQualified?: string | null;
+  rentPhPins: EarnedPin[];
   rentManagerProCluster: RemittanceCluster[];
   rentManagerPro: number;
   rentManagerProDateQualified?: string | null;
+  rentManagerProPins: EarnedPin[];
 }
 
 export interface PinningTrackerType {
@@ -104,6 +124,10 @@ export interface QualifiedRentManager {
   cluster: string;
   dateQualified?: string | null;
   pin: PinLabel;
+  // The nth pin of this type earned in the cluster, out of pinCount
+  pinNumber: number;
+  pinCount: number;
+  earnedSales: EarnedSales[];
 }
 
 export default function PinningTracker() {
@@ -202,7 +226,7 @@ export default function PinningTracker() {
                   selected={selectedPin === PINS.RMPRO_ELITE}
                   img={rmproElite}
                   imgSize={90}
-                  subTitle="Number of Pins"
+                  subTitle={`${ELITE_MIN_CYCLES}x Cycles`}
                   title={PINS.RMPRO_ELITE}
                   value={eliteRentManagers.length}
                   loading={rentManagers === null}
